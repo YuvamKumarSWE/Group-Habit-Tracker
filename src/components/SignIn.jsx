@@ -61,7 +61,7 @@ const SignIn = () => {
 
       setError("");
       alert("Login successful!");
-      navigate("/DashBoard"); // Redirect to dashboard
+      navigate("/Dashboard"); // Redirect to dashboard
     }
   };
 

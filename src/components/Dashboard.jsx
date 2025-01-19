@@ -14,20 +14,19 @@ function HabitTrackerCard({ group, onDelete }) {
   return (
     <div className="bg-lightPurple flex flex-col md:flex-col items-center backdrop-blur-3xl shadow-lg rounded-lg overflow-hidden w-full max-w-5xl mb-6">
       {/* Content */}
-      <div className="p-2 flex flex-col gap-4 w-full md:w-4/5">
+      <div className="p-2 flex flex-col gap-4 w-full md:w-4/5 text-darkText">
         <CardHeader>
           <CardTitle>{group.name}</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{group.streak} day streak</div>
-          <div className="text-sm text-gray-500">Last updated: {group.lastUpdated}</div>
+          <div className="text-2xl font-bold text-darkText">{group.streak} day streak</div>
         </CardContent>
       </div>
 
       {/* Link for Group Details */}
       <Link to={`/group/${group.id}`} className="flex items-center justify-center w-full h-full">
         {/* Empty div to make the whole card clickable */}
-         <Button variant ="secondary" className='w-full mx-6'>Click</Button>
+         <Button variant ="secondary" className='w-full mx-6'>Open</Button>
       </Link>
 
       {/* Delete Button */}

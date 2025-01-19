@@ -16,6 +16,7 @@ module.exports = {
 			darkText: '#5e3257',
 			lightPurple: '#f8effa',
 			darkLightPurple: '#e9d1e8',
+			lighterPurple: '#f6e4f6',
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {

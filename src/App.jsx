@@ -36,7 +36,7 @@ const App = () => {
             }}
             className={`hover:${isLoggedIn ? 'text-customPurple' : 'cursor-not-allowed text-customPurple'}`}
           >
-            DashBoard
+            Dashboard
           </Link>
           <Link
             to="/"
@@ -51,7 +51,7 @@ const App = () => {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/SignIn" element={<SignIn onLogin={handleLogin} />} />
-          <Route path="/DashBoard" element={<DashboardPage />} />
+          <Route path="/Dashboard" element={<DashboardPage />} />
           <Route path="/group/:id" element={<GalleryAndStreak/> }/>
         </Routes>
 

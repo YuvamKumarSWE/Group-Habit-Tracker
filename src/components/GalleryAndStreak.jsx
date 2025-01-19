@@ -23,151 +23,65 @@ const GalleryAndStreak = () => {
   const { id } = useParams();
   const groupData = mockData[`group${id}`];
 
-  // Handle the case where the group is not found
   if (!groupData) {
     return (
-      <div style={styles.container}>
-        <h1 style={styles.title}>Group Not Found</h1>
+      <div className="flex items-center justify-center h-screen w-screen bg-violet-50">
+        <h1 className="text-3xl font-bold text-gray-800">Group Not Found</h1>
       </div>
     );
   }
 
   return (
-    <div style={styles.container}>
-      <div style={styles.layout}>
+    <section className="bg-gradient-to-r from-violet-100 to-pink-100 h-screen w-screen flex items-center justify-center">
+      <div className="flex flex-col md:flex-row gap-6 w-11/12 max-w-7xl mx-auto">
         {/* Left Box */}
-        <div style={styles.leftBox}>
-          <h2 style={styles.leftBoxTitle}>Additional Info</h2>
-          <p style={styles.leftBoxContent}>
+        <div className="flex-1 bg-lightPurple rounded-lg p-6 shadow-lg">
+          <h2 className="text-2xl font-semibold mb-4 text-darkText">
+            Additional Info
+          </h2>
+          <p className="text-darkText">
             This box can be used for additional content like stats, notes, or
             other widgets.
           </p>
         </div>
 
         {/* Right Section */}
-        <div style={styles.rightBox}>
-          <h1 style={styles.title}>Photo Gallery</h1>
+        <div className="flex-2 bg-white rounded-lg p-6 shadow-lg flex flex-col gap-6">
+          <h1 className="text-3xl font-bold text-darkText text-center">
+            Photo Gallery
+          </h1>
 
-          {/* Inner Box for Photos */}
-          <div style={styles.innerBox}>
-            <div style={styles.gallery}>
-              {groupData.photos.map((photo, index) => (
-                <div key={index}>
-                  <img
-                    src={photo}
-                    alt={`Gallery Image ${index + 1}`}
-                    style={styles.photo}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-          <div style={styles.innerBox}>
-            <button style={styles.postButton}>Post</button>
+          {/* Photo Gallery */}
+          <div className="bg-gray-50 rounded-lg p-6 shadow-md flex flex-wrap gap-4 justify-center">
+            {groupData.photos.map((photo, index) => (
+              <div key={index} className="rounded-lg shadow-md overflow-hidden">
+                <img
+                  src={photo}
+                  alt={`Gallery Image ${index + 1}`}
+                  className="w-72 h-48 object-cover"
+                />
+              </div>
+            ))}
           </div>
 
-          {/* Inner Box for Streak Counter */}
-          <div style={styles.innerBox}>
-            <h2 style={styles.innerBoxTitle}>Progress</h2>
+          {/* Post Button */}
+          <div className="flex justify-center">
+            <button className="px-4 py-2 bg-blue-500 text-white font-bold rounded-lg hover:bg-blue-600">
+              Post
+            </button>
+          </div>
+
+          {/* Streak Counter */}
+          <div className="bg-lightPurple rounded-lg p-6 shadow-md">
+            <h2 className="text-2xl font-semibold text-center mb-4 text-darkText">
+              Progress
+            </h2>
             <StreakCounter />
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
-};
-
-// Styling
-const styles = {
-  container: {
-    width: '100vw',  // Full width of the viewport
-    height: '100vh', // Full height of the viewport
-    padding: '20px',
-    fontFamily: 'Arial, sans-serif',
-    margin: '0',     // Removes default margin
-    backgroundColor: "#f8effa",
-  },
-  layout: {
-    display: "flex",
-    gap: "20px",
-  },
-  leftBox: {
-    flex: "1",
-    backgroundColor: "#f0f0f0",
-    borderRadius: "15px",
-    padding: "20px",
-    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-    textAlign: "center",
-  },
-  leftBoxTitle: {
-    fontSize: "1.5rem",
-    marginBottom: "10px",
-  },
-  leftBoxContent: {
-    fontSize: "1rem",
-    color: "#555",
-  },
-  rightBox: {
-    flex: "2",
-    backgroundColor: "#fff",
-    borderRadius: "15px",
-    padding: "20px",
-    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-    display: "flex",
-    flexDirection: "column",
-    gap: "20px",
-  },
-  title: {
-    fontSize: "2.5rem",
-    marginBottom: "20px",
-    fontWeight: "bold",
-    color: "#333",
-    textAlign: "center",
-  },
-  innerBox: {
-    backgroundColor: "#f9f9f9",
-    borderRadius: "15px",
-    padding: "20px",
-    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-  },
-  innerBoxTitle: {
-    fontSize: "1.8rem",
-    marginBottom: "15px",
-    fontWeight: "bold",
-    color: "#555",
-    textAlign: "center",
-  },
-  gallery: {
-    display: "flex",
-    justifyContent: "center",
-    flexWrap: "wrap",
-    gap: "20px",
-  },
-  photoBox: {
-    backgroundColor: "#f9f9f9",
-    padding: "10px",
-    borderRadius: "15px",
-    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  photo: {
-    width: "300px",
-    height: "200px",
-    borderRadius: "10px",
-    objectFit: "cover",
-  },
-  postButton: {
-    padding: "10px 20px",
-    backgroundColor: "#007BFF",
-    color: "#ffffff",
-    border: "none",
-    borderRadius: "8px",
-    cursor: "pointer",
-    fontSize: "1rem",
-    fontWeight: "bold",
-  },
 };
 
 export default GalleryAndStreak;

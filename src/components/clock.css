@@ -14,7 +14,7 @@
 .clock .numbers {
     position: absolute;
     inset: 70px; /* Increase distance to make room for bigger numbers */
-    background: #e2afc7;
+    background: #f3c6e1;
     border-radius: 50%;
     box-shadow: 5px 5px 15px #d58dad66,
                 inset 5px 5px 5px rgba(255, 255, 255, 0.55),
@@ -49,7 +49,7 @@
     content: '';
     position: absolute;
     inset: 73px; /* Adjust to match larger size */
-    background: #e2afc7;
+    background: #f3c6e1;
     border-radius: 50%;
 }
 

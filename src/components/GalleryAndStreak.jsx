@@ -68,7 +68,7 @@ const GalleryAndStreak = () => {
 
           {/* Inner Box for Streak Counter */}
           <div style={styles.innerBox}>
-            <h2 style={styles.innerBoxTitle}>Streak Counter</h2>
+            <h2 style={styles.innerBoxTitle}>Progress</h2>
             <StreakCounter />
           </div>
         </div>

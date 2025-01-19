@@ -1,43 +1,46 @@
-// StreakCounter.js
-import React, { useState } from 'react';
+import React from 'react';
 
 const StreakCounter = () => {
-  const [streak, setStreak] = useState(0);
-
-  const maxStreak = 100; // Maximum streak for the progress bar (you can change this value)
-
-  const incrementStreak = () => {
-    if (streak < maxStreak) {
-      setStreak(streak + 1);
-    }
-  };
+  const maxStreak = 5; // Maximum streak for the progress bar
+  const currentStreak = 2; // Set streak to half of the maximum value
 
   return (
-    <div>
-      <h2>Streak: {streak}/{maxStreak}</h2>
-      <button onClick={incrementStreak}>Increase Streak</button>
-      <div style={{ marginTop: '20px', width: '100%' }}>
+    <div style={styles.container}>
+      <h2 style={styles.title}>Number of people completed today: {currentStreak}/{maxStreak}</h2>
+      <div style={styles.progressBarContainer}>
         <div
           style={{
-            height: '20px',
-            width: '100%',
-            backgroundColor: '#e0e0e0',
-            borderRadius: '10px',
+            ...styles.progressBar,
+            width: `${(currentStreak / maxStreak) * 100}%`, // Calculate percentage
           }}
-        >
-          <div
-            style={{
-              height: '100%',
-              width: `${(streak / maxStreak) * 100}%`,
-              backgroundColor: '#4caf50',
-              borderRadius: '10px',
-              transition: 'width 0.3s ease',
-            }}
-          />
-        </div>
+        />
       </div>
     </div>
   );
+};
+
+const styles = {
+  container: {
+    width: '100%',
+    textAlign: 'center',
+  },
+  title: {
+    fontSize: '1.5rem',
+    marginBottom: '10px',
+    color: '#333',
+  },
+  progressBarContainer: {
+    height: '20px',
+    width: '100%',
+    backgroundColor: '#e0e0e0',
+    borderRadius: '10px',
+    overflow: 'hidden', // Ensures the progress bar stays within bounds
+  },
+  progressBar: {
+    height: '100%',
+    backgroundColor: '#4caf50',
+    transition: 'width 0.3s ease',
+  },
 };
 
 export default StreakCounter;

@@ -1,0 +1,90 @@
+/* General Container */
+.gallery-container {
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+    font-family: Arial, sans-serif;
+  }
+  
+  /* Title */
+  .gallery-title {
+    text-align: center;
+    font-size: 2rem;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  .streak-title {
+    text-align: center;
+    font-size: 1.5rem;
+    color: #555;
+    margin-bottom: 10px;
+  }
+  
+  /* Photo Gallery */
+  .photo-gallery {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+  }
+  
+  .photo-gallery img {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+  }
+  
+  .photo-gallery img:hover {
+    transform: scale(1.05);
+  }
+  
+  /* Streak Progress Bar */
+  .streak-container {
+    margin-top: 40px;
+    text-align: center;
+  }
+  
+  .progress-bar {
+    background-color: #e0e0e0;
+    border-radius: 20px;
+    height: 20px;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    overflow: hidden;
+    position: relative;
+  }
+  
+  .progress-bar-fill {
+    background: linear-gradient(90deg, #4caf50, #81c784);
+    height: 100%;
+    border-radius: 20px 0 0 20px;
+    transition: width 0.5s ease-in-out;
+  }
+  
+  .streak-count {
+    margin-top: 10px;
+    font-size: 1.2rem;
+    color: #333;
+  }
+  
+  .streak-button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .streak-button:hover {
+    background-color: #388e3c;
+  }
+  

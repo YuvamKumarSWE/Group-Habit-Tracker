@@ -34,14 +34,14 @@ const App = () => {
                 setShowAlert(true); // Show the alert modal
               }
             }}
-            className={`hover:${isLoggedIn ? 'text-customPurple' : 'cursor-not-allowed text-customPurple'}`}
+            className="font-obitron font-bold text-xl"
           >
-            Dashboard
+            Clocked In
           </Link>
           <Link
             to="/"
             onClick={handleLogout} // Log out when clicking "Sign Out"
-            className="hover:text-gray-400"
+            className="font-obitron font-semibold hover:text-gray-400"
           >
             Sign Out
           </Link>

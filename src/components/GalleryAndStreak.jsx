@@ -37,12 +37,11 @@ const GalleryAndStreak = () => {
         {/* Left Box */}
         <div className="flex-1 bg-lightPurple rounded-lg p-6 shadow-lg">
           <h2 className="text-2xl font-semibold mb-4 text-darkText">
-            Additional Info
-          </h2>
-          <p className="text-darkText">
-            This box can be used for additional content like stats, notes, or
-            other widgets.
-          </p>
+              Group Insights
+            </h2>
+            <p className="text-darkText">
+              <img src="https://i.pinimg.com/originals/d7/f2/c9/d7f2c9b7a05f1e67e863b26f4bd3a8aa.jpg"/>
+            </p>
         </div>
 
         {/* Right Section */}

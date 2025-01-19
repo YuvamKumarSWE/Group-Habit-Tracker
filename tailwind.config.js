@@ -6,6 +6,9 @@ module.exports = {
   ],
   theme: {
   	extend: {
+		fontFamily: {
+			"obitron" : [ "Orbitron" , "sabs-serif"]
+		},
   		borderRadius: {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',

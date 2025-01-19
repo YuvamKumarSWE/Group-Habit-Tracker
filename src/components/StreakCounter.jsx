@@ -38,7 +38,7 @@ const styles = {
   },
   progressBar: {
     height: '100%',
-    backgroundColor: '#4caf50',
+    backgroundColor: '#e9d1e8',
     transition: 'width 0.3s ease',
   },
 };

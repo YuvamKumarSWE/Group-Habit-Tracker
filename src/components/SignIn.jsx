@@ -7,11 +7,20 @@ const SignIn = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
+  const [modalMessage, setModalMessage] = useState(''); // Modal message state
   const navigate = useNavigate(); // useNavigate hook for navigation
 
   const handleToggle = () => {
     setIsSignUp(!isSignUp);
     setError(''); // Clear errors when toggling
+  };
+
+  const showModal = (message, onClose) => {
+    setModalMessage(message); // Set the modal message
+    setTimeout(() => {
+      setModalMessage(''); // Clear the modal message after 1 second
+      if (onClose) onClose(); // Call the onClose callback if provided
+    }, 1000);
   };
 
   const handleSubmit = (e) => {
@@ -26,47 +35,49 @@ const SignIn = () => {
     if (isSignUp) {
       // Handle Sign Up
       if (password !== confirmPassword) {
-        setError("Passwords do not match.");
+        setError('Passwords do not match.');
         return;
       }
 
       // Check if email is already registered
-      const users = JSON.parse(localStorage.getItem("users")) || [];
+      const users = JSON.parse(localStorage.getItem('users')) || [];
       const existingUser = users.find((user) => user.email === email);
 
       if (existingUser) {
-        setError("This email is already registered.");
+        setError('This email is already registered.');
         return;
       }
 
       // Save user to localStorage
       const newUser = { email, password };
       users.push(newUser);
-      localStorage.setItem("users", JSON.stringify(users));
+      localStorage.setItem('users', JSON.stringify(users));
 
-      setError("");
-      alert("Account created successfully! You can now sign in.");
-      setIsSignUp(false); // Switch to Sign In mode
+      setError('');
+      showModal('Account created successfully! You can now sign in.', () => {
+        setIsSignUp(false); // Switch to Sign In mode after showing the modal
+      });
     } else {
       // Handle Sign In
-      const users = JSON.parse(localStorage.getItem("users")) || [];
+      const users = JSON.parse(localStorage.getItem('users')) || [];
       const user = users.find(
         (user) => user.email === email && user.password === password
       );
 
       if (!user) {
-        setError("Invalid email or password.");
+        setError('Invalid email or password.');
         return;
       }
 
-      setError("");
-      alert("Login successful!");
-      navigate("/Dashboard"); // Redirect to dashboard
+      setError('');
+      showModal('Login successful!', () => {
+        navigate('/Dashboard'); // Redirect to dashboard after showing the modal
+      });
     }
   };
 
   return (
-    <section className="bg-gradient-to-r bg-gradient-to-r from-violet-200 to-pink-200 h-screen w-screen">
+    <section className="bg-gradient-to-r from-violet-200 to-pink-200 h-screen w-screen">
       <div className="flex flex-col items-center justify-center px-6 py-2 mx-auto md:h-screen lg:py-0">
         <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
           <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
@@ -155,6 +166,14 @@ const SignIn = () => {
           </div>
         </div>
       </div>
+
+      {modalMessage && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-lg p-4 shadow-lg text-center">
+            <p className="text-lg font-medium text-gray-800">{modalMessage}</p>
+          </div>
+        </div>
+      )}
     </section>
   );
 };

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import SignIn from './components/SignIn'; // Import the SignIn component
 import DashboardPage from './components/Dashboard';
+import GalleryAndStreak from './components/GalleryAndStreak';
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false); // Track if the user is logged in
@@ -49,33 +50,14 @@ const App = () => {
         <Routes>
           <Route path="/" element={<SignIn onLogin={handleLogin} />} />
           <Route path="/DashBoard" element={<DashboardPage />} />
+          <Route path="/group/:id" element={<GalleryAndStreak/> }/>
         </Routes>
 
         {/* Alert Modal */}
-        {showAlert && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="bg-white p-6 rounded-md text-center">
-              <div className="mb-4">
-                <iframe
-                  src="https://tenor.com/embed/5519036"
-                  width="500"
-                  height="200"
-                  frameBorder="0"
-                  allowFullScreen
-                  title="Youre Dumb GIF"
-                ></iframe>
-              </div>
-              <p className="text-lg font-bold">Please sign up or log in to access the Dashboard!</p>
-              <button
-                onClick={closeAlert}
-                className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700"
-              >
-                Close
-              </button>
-            </div>
+        
           </div>
-        )}
-      </div>
+        
+  
     </Router>
   );
 };

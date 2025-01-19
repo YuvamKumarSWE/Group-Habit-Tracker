@@ -23,13 +23,46 @@ const SignIn = () => {
       return;
     }
 
-    if (isSignUp && password !== confirmPassword) {
-      setError('Passwords do not match.');
-      return;
-    }
+    if (isSignUp) {
+      // Handle Sign Up
+      if (password !== confirmPassword) {
+        setError("Passwords do not match.");
+        return;
+      }
 
-    setError(''); // Clear errors if all validations pass
-    navigate('/DashBoard'); // Redirect to the dashboard
+      // Check if email is already registered
+      const users = JSON.parse(localStorage.getItem("users")) || [];
+      const existingUser = users.find((user) => user.email === email);
+
+      if (existingUser) {
+        setError("This email is already registered.");
+        return;
+      }
+
+      // Save user to localStorage
+      const newUser = { email, password };
+      users.push(newUser);
+      localStorage.setItem("users", JSON.stringify(users));
+
+      setError("");
+      alert("Account created successfully! You can now sign in.");
+      setIsSignUp(false); // Switch to Sign In mode
+    } else {
+      // Handle Sign In
+      const users = JSON.parse(localStorage.getItem("users")) || [];
+      const user = users.find(
+        (user) => user.email === email && user.password === password
+      );
+
+      if (!user) {
+        setError("Invalid email or password.");
+        return;
+      }
+
+      setError("");
+      alert("Login successful!");
+      navigate("/DashBoard"); // Redirect to dashboard
+    }
   };
 
   return (

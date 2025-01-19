@@ -80,10 +80,12 @@ const GalleryAndStreak = () => {
 // Styling
 const styles = {
   container: {
-    padding: "20px",
-    fontFamily: "Arial, sans-serif",
-    maxWidth: "1200px",
-    margin: "0 auto",
+    width: '100vw',  // Full width of the viewport
+    height: '100vh', // Full height of the viewport
+    padding: '20px',
+    fontFamily: 'Arial, sans-serif',
+    margin: '0',     // Removes default margin
+    backgroundColor: "#f8effa",
   },
   layout: {
     display: "flex",

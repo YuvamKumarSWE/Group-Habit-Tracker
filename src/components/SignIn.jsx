@@ -70,14 +70,14 @@ const SignIn = () => {
       <div className="flex flex-col items-center justify-center px-6 py-2 mx-auto md:h-screen lg:py-0">
         <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
           <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
-            <h1 className="text-xl font-bold leading-tight tracking-tight text-darkText md:text-2xl dark:text-white">
+            <h1 className="text-xl font-bold leading-tight tracking-tight text-customPurple md:text-2xl dark:text-white">
               {isSignUp ? 'Sign up for an account' : 'Sign in to your account'}
             </h1>
             <form onSubmit={handleSubmit} className="space-y-1 md:space-y-6">
               <div>
                 <label
                   htmlFor="email"
-                  className="block mb-2 text-sm font-medium text-darkText dark:text-white"
+                  className="block mb-2 text-sm font-medium text-customPurple dark:text-white"
                 >
                   Your email
                 </label>
@@ -87,7 +87,7 @@ const SignIn = () => {
                   id="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="bg-gray-50 border border-gray-300 text-darkText rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  className="bg-gray-50 border border-customPurple text-darkText rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-customPurple dark:focus:border-blue-500"
                   placeholder="name@company.com"
                   required
                 />
@@ -95,7 +95,7 @@ const SignIn = () => {
               <div>
                 <label
                   htmlFor="password"
-                  className="block mb-2 text-sm font-medium text-darkText dark:text-white"
+                  className="block mb-2 text-sm font-medium text-customPurple dark:text-white"
                 >
                   Password
                 </label>
@@ -106,7 +106,7 @@ const SignIn = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="bg-gray-50 border border-gray-300 text-darkText rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  className="bg-gray-50 border border-customPurple text-darkText rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-customPurple dark:border-customPurple dark:placeholder-gray-400 dark:text-white dark:focus:customPurple dark:focus:customPurple"
                   required
                 />
               </div>
@@ -114,7 +114,7 @@ const SignIn = () => {
                 <div>
                   <label
                     htmlFor="confirm-password"
-                    className="block mb-2 text-sm font-medium text-darkText dark:text-white"
+                    className="block mb-2 text-sm font-medium text-customPurple dark:text-white"
                   >
                     Confirm Password
                   </label>
@@ -125,7 +125,7 @@ const SignIn = () => {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="bg-gray-50 border border-gray-300 text-darkText rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    className="bg-gray-50 border border-customPurple text-darkText rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                     required
                   />
                 </div>
@@ -135,7 +135,7 @@ const SignIn = () => {
               )}
               <button
                 type="submit"
-                className="w-full text-white bg-black hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+                className="w-full text-white bg-customPurple hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
               >
                 {isSignUp ? 'Sign up' : 'Sign in'}
               </button>
@@ -146,7 +146,7 @@ const SignIn = () => {
                 <button
                   type="button"
                   onClick={handleToggle}
-                  className="font-medium text-primary-600 hover:underline dark:text-primary-500"
+                  className="font-medium text-customPurple hover:underline dark:text-customPurple"
                 >
                   {isSignUp ? 'Sign in' : 'Sign up'}
                 </button>

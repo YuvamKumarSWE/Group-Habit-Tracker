@@ -25,23 +25,23 @@ const App = () => {
     <Router>
       <div className="min-h-screen scroll-smooth overflow-hidden">
         {/* Navigation Links */}
-        <nav className="flex space-x-4 justify-between bg-black text-white p-4">
+        <nav className="flex space-x-4 justify-between bg-gradient-to-r bg-gradient-to-r from-violet-200 to-pink-200 text-customPurple p-4">
           <Link
-            to={isLoggedIn ? "/DashBoard" : "#"}
+            to={isLoggedIn ? "/Dashboard" : "#"}
             onClick={(e) => {
               if (!isLoggedIn) {
                 e.preventDefault();
                 setShowAlert(true); // Show the alert modal
               }
             }}
-            className={`hover:${isLoggedIn ? 'text-gray-300' : 'cursor-not-allowed text-gray-500'}`}
+            className={`hover:${isLoggedIn ? 'text-customPurple' : 'cursor-not-allowed text-customPurple'}`}
           >
             DashBoard
           </Link>
           <Link
             to="/"
             onClick={handleLogout} // Log out when clicking "Sign Out"
-            className="hover:text-gray-600"
+            className="hover:text-gray-400"
           >
             Sign Out
           </Link>

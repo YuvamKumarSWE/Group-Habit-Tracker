@@ -12,7 +12,7 @@ function HabitTrackerCard({ group, onDelete }) {
   };
 
   return (
-    <div className="flex flex-col md:flex-col items-center backdrop-blur-3xl shadow-lg rounded-lg overflow-hidden w-full max-w-5xl mb-6">
+    <div className="bg-lightPurple flex flex-col md:flex-col items-center backdrop-blur-3xl shadow-lg rounded-lg overflow-hidden w-full max-w-5xl mb-6">
       {/* Content */}
       <div className="p-2 flex flex-col gap-4 w-full md:w-4/5">
         <CardHeader>
@@ -27,12 +27,12 @@ function HabitTrackerCard({ group, onDelete }) {
       {/* Link for Group Details */}
       <Link to={`/group/${group.id}`} className="flex items-center justify-center w-full h-full">
         {/* Empty div to make the whole card clickable */}
-         <Button className='w-full mx-6'>Click</Button>
+         <Button variant ="secondary" className='w-full mx-6'>Click</Button>
       </Link>
 
       {/* Delete Button */}
       <div className="flex items-center justify-center w-full h-full">
-        <Button onClick={handleDelete} className="w-full mx-6 my-4 text-red-500">Delete</Button>
+        <Button variant="secondary" onClick={handleDelete} className="w-full mx-6 my-4 text-red-500">Delete</Button>
       </div>
     </div>
   );
@@ -78,11 +78,11 @@ export default function DashboardPage() {
   };
 
   return (
-    <section className="bg-gray-50 dark:bg-gray-900 h-screen w-screen">
-    <div className="min-h-screen bg-gray-100">
+    <section className="bg-gradient-to-r bg-gradient-to-r from-violet-100 to-pink-100 h-screen w-screen">
+    <div className="min-h-screen bg-gradient-to-r bg-gradient-to-r from-violet-100 to-pink-100">
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
-          <h1 className="text-2xl font-semibold text-gray-900">Your Groups</h1>
+          <h1 className="text-2xl font-semibold text-darkText">Your Groups</h1>
           <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {groups.map((group) => (
               <div key={group.id} className="relative">
@@ -96,7 +96,7 @@ export default function DashboardPage() {
 
           {/* Button to open the modal */}
           <div className="mt-8">
-            <Button onClick={openModal}>Create New Group</Button>
+            <Button variant="secondary" onClick={openModal}>Create New Group</Button>
           </div>
         </div>
       </main>
@@ -108,7 +108,7 @@ export default function DashboardPage() {
             <h2 className="text-2xl font-semibold mb-4">Create New Group</h2>
             <form onSubmit={handleFormSubmit}>
               <div className="mb-4">
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700">Group Name</label>
+                <label htmlFor="name" className="block text-sm font-medium text-darkText">Group Name</label>
                 <input
                   type="text"
                   id="name"

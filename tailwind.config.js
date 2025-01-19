@@ -12,6 +12,10 @@ module.exports = {
   			sm: 'calc(var(--radius) - 4px)'
   		},
   		colors: {
+			customPurple: '#8f5b74',
+			darkText: '#5e3257',
+			lightPurple: '#f8effa',
+			darkLightPurple: '#e9d1e8',
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {

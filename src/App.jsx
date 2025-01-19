@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import SignIn from './components/SignIn'; // Import the SignIn component
 import DashboardPage from './components/Dashboard';
 import GalleryAndStreak from './components/GalleryAndStreak';
+import LandingPage from './components/LandingPage';
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false); // Track if the user is logged in
@@ -22,7 +23,7 @@ const App = () => {
 
   return (
     <Router>
-      <div className="max-h-[100vh] scroll-behavior: smooth overflow-hidden">
+      <div className="min-h-screen scroll-smooth overflow-hidden">
         {/* Navigation Links */}
         <nav className="flex space-x-4 justify-between bg-black text-white p-4">
           <Link
@@ -48,7 +49,8 @@ const App = () => {
 
         {/* Routes */}
         <Routes>
-          <Route path="/" element={<SignIn onLogin={handleLogin} />} />
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/SignIn" element={<SignIn onLogin={handleLogin} />} />
           <Route path="/DashBoard" element={<DashboardPage />} />
           <Route path="/group/:id" element={<GalleryAndStreak/> }/>
         </Routes>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import SignIn from './components/SignIn'; // Import the SignIn component
-import GalleryAndStreak from './components/GalleryAndStreak';
+import DashboardPage from './components/Dashboard';
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false); // Track if the user is logged in
@@ -48,7 +48,7 @@ const App = () => {
         {/* Routes */}
         <Routes>
           <Route path="/" element={<SignIn onLogin={handleLogin} />} />
-          <Route path="/DashBoard" element={<GalleryAndStreak />} />
+          <Route path="/DashBoard" element={<DashboardPage />} />
         </Routes>
 
         {/* Alert Modal */}

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-
 import { db, auth } from './firebase.js'; // Ensure Firebase Auth is initialized
 import { doc, getDoc, updateDoc, onSnapshot } from 'firebase/firestore';
 
@@ -91,55 +90,68 @@ export default function GroupDetails() {
             streak: allUploaded ? groupData.streak + 1 : 0,
             lastUpdated: today,
           });
+
+          setStreak(allUploaded ? groupData.streak + 1 : 0);
+          setUploadedImages([]);
         }
       }
     }
   };
-
+ 
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (file) {
+      // Validate file type
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/heif'];
+      if (!allowedTypes.includes(file.type)) {
+        alert('Invalid file type. Please upload a jpg, jpeg, png, or heif image.');
+        return;
+      }
+  
       const reader = new FileReader();
       reader.onloadend = async () => {
         const base64String = reader.result;
-
         const userId = auth.currentUser.uid;
-        const alreadyUploaded = uploadedImages.some((img) => img.userId === userId);
-        if (alreadyUploaded) {
-          alert('You have already uploaded an image today!');
-          return;
-        }
-
-        const updatedImages = [...uploadedImages, { userId, image: base64String }];
+  
+        // Check if the user has already uploaded
+        const existingImage = uploadedImages.find((img) => img.userId === userId);
+  
+        // Replace the user's image or add a new entry
+        const updatedImages = existingImage
+          ? uploadedImages.map((img) =>
+              img.userId === userId ? { userId, image: base64String } : img
+            )
+          : [...uploadedImages, { userId, image: base64String }];
+  
+        const today = new Date().toISOString().split('T')[0];
         const allUploaded = group.userIds.every((id) =>
           updatedImages.some((img) => img.userId === id)
         );
-
-        const today = new Date().toISOString().split('T')[0];
+  
+        // Only update the streak if it's a new upload and all users have uploaded
         let newStreak = streak;
-
-        if (allUploaded && group.lastUpdated === today) {
-          newStreak += 1; // Increment streak if all uploaded today
+        if (!existingImage && allUploaded) {
+          newStreak += 1;
         }
-
+  
         const groupRef = doc(db, 'groups', groupId);
         await updateDoc(groupRef, {
           uploadedImages: updatedImages,
           streak: newStreak,
           lastUpdated: today,
         });
-
-        setUploadedImages(updatedImages);
-        setStreak(newStreak);
-
-        if (allUploaded) {
+  
+        setUploadedImages(updatedImages); // Update UI state
+        setStreak(newStreak); // Update streak locally
+  
+        if (allUploaded && !existingImage) {
           alert('All users have uploaded their images! Streak increased.');
         }
       };
       reader.readAsDataURL(file);
     }
   };
-
+ 
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Group Details</h1>

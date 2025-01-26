@@ -1,7 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
 import { Button } from '@/components/ui/button';
-import Clock from './Clock';
 import TypingAnimation from './ui/typing-animation';
 import AnimatedShinyText from './ui/animated-shiny-text';
 
@@ -15,10 +14,7 @@ const LandingPage = () => {
   return (
     <section className="bg-gradient-to-r from-violet-200 to-pink-200 h-screen w-screen flex">
 
-      {/* Left half - Clock */}
-      <div className="w-1/2 flex justify-center items-center dark:bg-gray-800">
-        <Clock />
-      </div>
+     
 
       {/* Right half - Text */}
       <div className="w-1/2 flex flex-col items-center justify-center px-6 py-2 mx-auto md:h-screen lg:py-0">

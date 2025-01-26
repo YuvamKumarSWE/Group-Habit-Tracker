@@ -1,65 +1,85 @@
-import React, { useState } from 'react';
-import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
-import SignIn from './components/SignIn'; // Import the SignIn component
-import DashboardPage from './components/Dashboard';
-import GalleryAndStreak from './components/GalleryAndStreak';
-import LandingPage from './components/LandingPage';
+import React, { useState, useEffect } from "react";
+import { BrowserRouter as Router, Route, Routes, Link, Navigate } from "react-router-dom";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { auth } from "./firebase"; // Import Firebase configuration
+import DashboardPage from "./components/Dashboard";
+import LandingPage from "./components/LandingPage";
+import SignInForm from "./components/Authentication/SignInForm";
 
 const App = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Track if the user is logged in
-  const [showAlert, setShowAlert] = useState(false); // Control modal visibility
+  const [user, setUser] = useState(null);
 
-  const handleLogin = () => {
-    setIsLoggedIn(true); // Update the state when the user logs in
-  };
+  // Track authentication state
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+    return () => unsubscribe();
+  }, []);
 
-  const handleLogout = () => {
-    setIsLoggedIn(false); // Update the state when the user logs out
-  };
-
-  const closeAlert = () => {
-    setShowAlert(false); // Close the modal
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
   };
 
   return (
     <Router>
       <div className="min-h-screen scroll-smooth overflow-hidden">
         {/* Navigation Links */}
-        <nav className="flex space-x-4 justify-between bg-gradient-to-r bg-gradient-to-r from-violet-200 to-pink-200 text-customPurple p-4">
-          <Link
-            to={isLoggedIn ? "/Dashboard" : "#"}
-            onClick={(e) => {
-              if (!isLoggedIn) {
-                e.preventDefault();
-                setShowAlert(true); // Show the alert modal
-              }
-            }}
-            className="font-obitron font-bold text-xl"
-          >
+        <nav className="flex space-x-4 justify-between bg-gradient-to-r from-violet-200 to-pink-200 text-customPurple p-4">
+          {/* Brand Link */}
+          <Link to="/" className="font-obitron font-bold text-xl">
             Clocked In
           </Link>
-          <Link
-            to="/"
-            onClick={handleLogout} // Log out when clicking "Sign Out"
-            className="font-obitron font-semibold hover:text-gray-400"
-          >
-            Sign Out
-          </Link>
+
+          {/* Conditional Links */}
+          <div className="flex space-x-4">
+            {user ? (
+              <>
+                <Link
+                  to="/Dashboard"
+                  className="font-obitron font-semibold hover:text-gray-400"
+                >
+                  Dashboard
+                </Link>
+                <button
+                  onClick={handleSignOut}
+                  className="font-obitron font-semibold hover:text-gray-400"
+                >
+                  Log Out
+                </button>
+              </>
+            ) : (
+              <Link
+                to="/SignIn"
+                className="font-obitron font-semibold hover:text-gray-400"
+              >
+                Sign In
+              </Link>
+            )}
+          </div>
         </nav>
 
         {/* Routes */}
         <Routes>
           <Route path="/" element={<LandingPage />} />
-          <Route path="/SignIn" element={<SignIn onLogin={handleLogin} />} />
-          <Route path="/Dashboard" element={<DashboardPage />} />
-          <Route path="/group/:id" element={<GalleryAndStreak/> }/>
+          <Route
+            path="/SignIn"
+            element={
+              user ? <Navigate to="/Dashboard" /> : <SignInForm />
+            }
+          />
+          <Route
+            path="/Dashboard"
+            element={
+              user ? <DashboardPage /> : <Navigate to="/SignIn" />
+            }
+          />
         </Routes>
-
-        {/* Alert Modal */}
-        
-          </div>
-        
-  
+      </div>
     </Router>
   );
 };

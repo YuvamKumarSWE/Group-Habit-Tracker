@@ -24,6 +24,7 @@ export default function GroupDetails() {
       }
     });
 
+    // Check and reset if needed on initial load
     const resetIfNeeded = async () => {
       const now = new Date();
       const today = now.toISOString().split('T')[0];
@@ -34,41 +35,41 @@ export default function GroupDetails() {
 
         // If last update wasn't today, perform reset
         if (groupData.lastUpdated !== today) {
+          // Check if all users uploaded their images before midnight
           const allUploaded = groupData.userIds.every((id) =>
             groupData.uploadedImages.some((img) => img.userId === id)
           );
 
           await updateDoc(groupRef, {
-            uploadedImages: [],
-            streak: allUploaded ? groupData.streak : 0,
+            uploadedImages: [], // Reset images
+            streak: allUploaded ? groupData.streak : 0, // Keep streak if all users uploaded
             lastUpdated: today,
           });
 
-          setUploadedImages([]);
-          setStreak(allUploaded ? groupData.streak : 0);
+          setUploadedImages([]); // Update UI state
+          setStreak(allUploaded ? groupData.streak : 0); // Update streak locally
         }
       }
     };
 
-    // Helper function to calculate milliseconds until 12 PM
-    const getMsUntilNoon = () => {
+    resetIfNeeded();
+
+    // Set up future midnight checks
+    const getMsUntilMidnight = () => {
       const now = new Date();
-      const nextNoon = new Date(now);
-      if (now.getHours() >= 12) {
-        // If it's past 12 PM, schedule for the next day
-        nextNoon.setDate(nextNoon.getDate() + 1);
-      }
-      nextNoon.setHours(12, 0, 0, 0);
-      return nextNoon - now;
+      const tomorrow = new Date(now);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(0, 0, 0, 0);
+      return tomorrow - now;
     };
 
-    // Initial timeout to sync with 12 PM
+    // Initial timeout to sync with midnight
     const initialTimeout = setTimeout(() => {
       resetIfNeeded();
-      // Then set up a daily interval
+      // Then set up daily interval
       const dailyCheck = setInterval(resetIfNeeded, 24 * 60 * 60 * 1000);
       return () => clearInterval(dailyCheck);
-    }, getMsUntilNoon());
+    }, getMsUntilMidnight());
 
     return () => {
       unsubscribe();
@@ -181,7 +182,7 @@ export default function GroupDetails() {
                 <img
                   key={index}
                   src={img.image}
-                  alt={`Upload ${index}`}
+                  alt={Upload ${index}}
                   className="w-24 h-24 m-2 object-cover rounded"
                 />
               ))}

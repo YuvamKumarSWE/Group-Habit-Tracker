@@ -24,7 +24,7 @@ export default function GroupDetails() {
       }
     });
 
-    // Reset on app load if needed
+    // Check and reset if needed on initial load
     const resetIfNeeded = async () => {
       const now = new Date();
       const today = now.toISOString().split('T')[0];
@@ -33,28 +33,47 @@ export default function GroupDetails() {
       if (groupSnap.exists()) {
         const groupData = groupSnap.data();
 
+        // If last update wasn't today, perform reset
         if (groupData.lastUpdated !== today) {
+          // Check if all users uploaded their images before midnight
           const allUploaded = groupData.userIds.every((id) =>
             groupData.uploadedImages.some((img) => img.userId === id)
           );
 
           await updateDoc(groupRef, {
-            uploadedImages: [],
-            streak: allUploaded ? groupData.streak + 1 : 0,
+            uploadedImages: [], // Reset images
+            streak: allUploaded ? groupData.streak : 0, // Keep streak if all users uploaded
             lastUpdated: today,
           });
+
+          setUploadedImages([]); // Update UI state
+          setStreak(allUploaded ? groupData.streak : 0); // Update streak locally
         }
       }
     };
 
     resetIfNeeded();
 
-    // Midnight check
-    const midnightCheck = setInterval(checkAndResetAtMidnight, 60000); // Check every minute
+    // Set up future midnight checks
+    const getMsUntilMidnight = () => {
+      const now = new Date();
+      const tomorrow = new Date(now);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(0, 0, 0, 0);
+      return tomorrow - now;
+    };
+
+    // Initial timeout to sync with midnight
+    const initialTimeout = setTimeout(() => {
+      resetIfNeeded();
+      // Then set up daily interval
+      const dailyCheck = setInterval(resetIfNeeded, 24 * 60 * 60 * 1000);
+      return () => clearInterval(dailyCheck);
+    }, getMsUntilMidnight());
 
     return () => {
       unsubscribe();
-      clearInterval(midnightCheck);
+      clearTimeout(initialTimeout);
     };
   }, [groupId]);
 
@@ -69,35 +88,6 @@ export default function GroupDetails() {
     setUsers(userData);
   };
 
-  const checkAndResetAtMidnight = async () => {
-    const now = new Date();
-    const today = now.toISOString().split('T')[0];
-
-    if (now.getHours() === 0 && now.getMinutes() === 0) {
-      const groupRef = doc(db, 'groups', groupId);
-      const groupSnap = await getDoc(groupRef);
-
-      if (groupSnap.exists()) {
-        const groupData = groupSnap.data();
-
-        if (groupData.lastUpdated !== today) {
-          const allUploaded = groupData.userIds.every((id) =>
-            groupData.uploadedImages.some((img) => img.userId === id)
-          );
-
-          await updateDoc(groupRef, {
-            uploadedImages: [],
-            streak: allUploaded ? groupData.streak + 1 : 0,
-            lastUpdated: today,
-          });
-
-          setStreak(allUploaded ? groupData.streak + 1 : 0);
-          setUploadedImages([]);
-        }
-      }
-    }
-  };
- 
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -107,43 +97,43 @@ export default function GroupDetails() {
         alert('Invalid file type. Please upload a jpg, jpeg, png, or heif image.');
         return;
       }
-  
+
       const reader = new FileReader();
       reader.onloadend = async () => {
         const base64String = reader.result;
         const userId = auth.currentUser.uid;
-  
+
         // Check if the user has already uploaded
         const existingImage = uploadedImages.find((img) => img.userId === userId);
-  
+
         // Replace the user's image or add a new entry
         const updatedImages = existingImage
           ? uploadedImages.map((img) =>
               img.userId === userId ? { userId, image: base64String } : img
             )
           : [...uploadedImages, { userId, image: base64String }];
-  
+
         const today = new Date().toISOString().split('T')[0];
         const allUploaded = group.userIds.every((id) =>
           updatedImages.some((img) => img.userId === id)
         );
-  
+
         // Only update the streak if it's a new upload and all users have uploaded
         let newStreak = streak;
         if (!existingImage && allUploaded) {
           newStreak += 1;
         }
-  
+
         const groupRef = doc(db, 'groups', groupId);
         await updateDoc(groupRef, {
           uploadedImages: updatedImages,
           streak: newStreak,
           lastUpdated: today,
         });
-  
+
         setUploadedImages(updatedImages); // Update UI state
         setStreak(newStreak); // Update streak locally
-  
+
         if (allUploaded && !existingImage) {
           alert('All users have uploaded their images! Streak increased.');
         }
@@ -151,7 +141,7 @@ export default function GroupDetails() {
       reader.readAsDataURL(file);
     }
   };
- 
+
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Group Details</h1>

@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Route, Routes, Link, Navigate } from "react-router-dom";
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import { auth } from "./firebase"; // Import Firebase configuration
+import { auth } from "./firebase";
 import DashboardPage from "./components/Dashboard";
 import LandingPage from "./components/LandingPage";
 import SignInForm from "./components/Authentication/SignInForm";
+import GroupDetails from "./GroupDetails";
 
 const App = () => {
   const [user, setUser] = useState(null);
 
-  // Track authentication state
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -28,14 +28,10 @@ const App = () => {
   return (
     <Router>
       <div className="min-h-screen scroll-smooth overflow-hidden">
-        {/* Navigation Links */}
         <nav className="flex space-x-4 justify-between bg-gradient-to-r from-violet-200 to-pink-200 text-customPurple p-4">
-          {/* Brand Link */}
           <Link to="/" className="font-obitron font-bold text-xl">
             Clocked In
           </Link>
-
-          {/* Conditional Links */}
           <div className="flex space-x-4">
             {user ? (
               <>
@@ -62,8 +58,6 @@ const App = () => {
             )}
           </div>
         </nav>
-
-        {/* Routes */}
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route
@@ -76,6 +70,12 @@ const App = () => {
             path="/Dashboard"
             element={
               user ? <DashboardPage /> : <Navigate to="/SignIn" />
+            }
+          />
+          <Route
+            path="/group/:groupId"
+            element={
+              user ? <GroupDetails /> : <Navigate to="/SignIn" />
             }
           />
         </Routes>

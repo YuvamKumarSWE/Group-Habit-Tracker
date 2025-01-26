@@ -2,23 +2,27 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyC3x3viN2JOyWxr8EW7kofDieqB2U_InkU",
-  authDomain: "group-habit-tracker-d0cc2.firebaseapp.com",
-  projectId: "group-habit-tracker-d0cc2",
-  storageBucket: "group-habit-tracker-d0cc2.firebasestorage.app",
-  messagingSenderId: "516872435803",
-  appId: "1:516872435803:web:1665ae87659583d34c677e",
-  measurementId: "G-8TFEFH8N05"
+  apiKey: import.meta.env.VITE_FIREBASE_APIKEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGE_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const auth = getAuth(app);
-export { app, analytics, auth };
+const db = getFirestore(app);
+export { app, analytics, auth, db };
+
+console.log(import.meta.env.VITE_FIREBASE_APIKEY);

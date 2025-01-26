@@ -37,7 +37,7 @@ const App = () => {
               <>
                 <Link
                   to="/Dashboard"
-                  className="font-obitron font-semibold hover:text-gray-400"
+                  className="font-obitron font-semibold hover:text-gray-400 pt-[2px]"
                 >
                   Dashboard
                 </Link>

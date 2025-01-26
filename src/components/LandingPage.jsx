@@ -17,16 +17,16 @@ const LandingPage = () => {
      
 
       {/* Right half - Text */}
-      <div className="w-1/2 flex flex-col items-center justify-center px-6 py-2 mx-auto md:h-screen lg:py-0">
+      <div className=" flex flex-col items-center justify-center px-6 py-2 mx-auto md:h-screen lg:py-0 mt-[-4%]">
         <div className="p-6 space-y-6 sm:p-8 text-center">
           <main className="max-w-7xl mx-auto py-6 px-4">
-            <h1 className="text-4xl font-semibold text-darkText mb-4">
-               <TypingAnimation>Welcome to Clocked in </TypingAnimation> 
+            <h1 className=" font-semibold text-darkText mb-4">
+               <TypingAnimation className="md:text-6xl text-4xl">Welcome to Clocked in </TypingAnimation> 
               </h1>
-            <p className="text-2xl font-light text-customPurple dark:text-customPurple mb-6">
+            <p className="md:text-3xl text-xs font-light text-customPurple dark:text-customPurple mb-6">
             Team Up, Track Together, Keep the Streak Alive!
             </p>
-            <Button onClick={handleSubmit} className='bg-purple-300'>
+            <Button onClick={handleSubmit} className='bg-purple-300 md:text-xl'>
               <AnimatedShinyText shimmerWidth={40} >
                 Get Started
               </AnimatedShinyText>

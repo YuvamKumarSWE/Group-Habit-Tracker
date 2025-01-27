@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { db, auth } from './firebase.js'; // Ensure Firebase Auth is initialized
-import { doc, getDoc, updateDoc, onSnapshot } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, onSnapshot, serverTimestamp } from 'firebase/firestore';
 
 export default function GroupDetails() {
   const { groupId } = useParams();
@@ -24,6 +24,7 @@ export default function GroupDetails() {
       }
     });
 
+    // Check and reset if needed on initial load
     const resetIfNeeded = async () => {
       const now = new Date();
       const today = now.toISOString().split('T')[0];
@@ -31,44 +32,45 @@ export default function GroupDetails() {
       const groupSnap = await getDoc(groupRef);
       if (groupSnap.exists()) {
         const groupData = groupSnap.data();
+        const lastUpdated = groupData.lastUpdated || '';
 
         // If last update wasn't today, perform reset
-        if (groupData.lastUpdated !== today) {
+        if (lastUpdated !== today) {
+          // Check if all users uploaded their images before midnight
           const allUploaded = groupData.userIds.every((id) =>
             groupData.uploadedImages.some((img) => img.userId === id)
           );
 
           await updateDoc(groupRef, {
-            uploadedImages: [],
-            streak: allUploaded ? groupData.streak : 0,
+            uploadedImages: [], // Reset images
+            streak: allUploaded ? groupData.streak + 1 : 0, // Increment streak if all users uploaded
             lastUpdated: today,
           });
 
-          setUploadedImages([]);
-          setStreak(allUploaded ? groupData.streak : 0);
+          setUploadedImages([]); // Update UI state
+          setStreak(allUploaded ? groupData.streak + 1 : 0); // Update streak locally
         }
       }
     };
 
-    // Helper function to calculate milliseconds until 12 PM
-    const getMsUntilNoon = () => {
+    resetIfNeeded();
+
+    // Set up future midnight checks
+    const getMsUntilMidnight = () => {
       const now = new Date();
-      const nextNoon = new Date(now);
-      if (now.getHours() >= 12) {
-        // If it's past 12 PM, schedule for the next day
-        nextNoon.setDate(nextNoon.getDate() + 1);
-      }
-      nextNoon.setHours(12, 0, 0, 0);
-      return nextNoon - now;
+      const tomorrow = new Date(now);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(0, 0, 0, 0);
+      return tomorrow - now;
     };
 
-    // Initial timeout to sync with 12 PM
+    // Initial timeout to sync with midnight
     const initialTimeout = setTimeout(() => {
       resetIfNeeded();
-      // Then set up a daily interval
+      // Then set up daily interval
       const dailyCheck = setInterval(resetIfNeeded, 24 * 60 * 60 * 1000);
       return () => clearInterval(dailyCheck);
-    }, getMsUntilNoon());
+    }, getMsUntilMidnight());
 
     return () => {
       unsubscribe();
@@ -112,19 +114,20 @@ export default function GroupDetails() {
             )
           : [...uploadedImages, { userId, image: base64String }];
 
+        // Fetch server time for consistency
         const today = new Date().toISOString().split('T')[0];
-        const allUploaded = group.userIds.every((id) =>
-          updatedImages.some((img) => img.userId === id)
-        );
+        const allUploaded =
+          group.userIds &&
+          group.userIds.every((id) =>
+            updatedImages.some((img) => img.userId === id)
+          );
 
-        // Only update the streak if it's a new upload and all users have uploaded
         let newStreak = streak;
         if (!existingImage && allUploaded) {
-          newStreak += 1;
+          newStreak += 1; // Increment streak only if all users have uploaded and it's a new upload
         }
 
-        const groupRef = doc(db, 'groups', groupId);
-        await updateDoc(groupRef, {
+        await updateDoc(doc(db, 'groups', groupId), {
           uploadedImages: updatedImages,
           streak: newStreak,
           lastUpdated: today,

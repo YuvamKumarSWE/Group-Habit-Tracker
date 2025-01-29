@@ -128,7 +128,7 @@ export default function DashboardPage() {
                     required
                   />
                 </div>
-                <div className="flex justify-end">
+                <div className="flex justify-end text-black">
                   <Button type="button" onClick={closeModal} className="mr-4">Cancel</Button>
                   <Button type="submit">Create Group</Button>
                 </div>

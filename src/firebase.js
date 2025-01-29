@@ -25,4 +25,3 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 export { app, analytics, auth, db };
 
-console.log(import.meta.env.VITE_FIREBASE_APIKEY);

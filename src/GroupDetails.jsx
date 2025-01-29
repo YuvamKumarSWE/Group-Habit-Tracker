@@ -89,19 +89,44 @@ export default function GroupDetails() {
     setUsers(userData);
   };
 
-  const handleImageUpload = async (e) => {
+  const handleImageUpload = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      // Validate file type
-      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/heif'];
-      if (!allowedTypes.includes(file.type)) {
-        alert('Invalid file type. Please upload a jpg, jpeg, png, or heif image.');
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        const base64String = reader.result;
+    
+    // Validate file
+    if (!file) {
+      alert('No file selected');
+      return;
+    }
+  
+    // Check if file is an image
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file');
+      return;
+    }
+  
+    // Check file size (limit to 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('File is too large. Please select an image under 5MB');
+      return;
+    }
+  
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      // Compress image before upload
+      const img = new Image();
+      img.src = event.target.result;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 1200;
+        const scaleSize = MAX_WIDTH / img.width;
+        canvas.width = MAX_WIDTH;
+        canvas.height = img.height * scaleSize;
+  
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+        // Continue with your existing upload logic using dataUrl
         const userId = auth.currentUser.uid;
 
         // Check if the user has already uploaded
@@ -110,9 +135,9 @@ export default function GroupDetails() {
         // Replace the user's image or add a new entry
         const updatedImages = existingImage
           ? uploadedImages.map((img) =>
-              img.userId === userId ? { userId, image: base64String } : img
+              img.userId === userId ? { userId, image: dataUrl } : img
             )
-          : [...uploadedImages, { userId, image: base64String }];
+          : [...uploadedImages, { userId, image: dataUrl }];
 
         // Fetch server time for consistency
         const today = new Date().toISOString().split('T')[0];
@@ -140,8 +165,8 @@ export default function GroupDetails() {
           alert('All users have uploaded their images! Streak increased.');
         }
       };
-      reader.readAsDataURL(file);
-    }
+    };
+    reader.readAsDataURL(file);
   };
 
   return (
@@ -156,6 +181,8 @@ export default function GroupDetails() {
             <input
               type="file"
               onChange={handleImageUpload}
+              accept="image/*;capture=camera"
+              capture="environment"
               className="mt-4 p-2 border rounded-2xl border-gray-300"
             />
 

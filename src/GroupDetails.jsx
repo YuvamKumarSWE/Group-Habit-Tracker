@@ -43,12 +43,12 @@ export default function GroupDetails() {
 
           await updateDoc(groupRef, {
             uploadedImages: [], // Reset images
-            streak: allUploaded ? groupData.streak + 1 : 0, // Increment streak if all users uploaded
+            streak: allUploaded ? groupData.streak : 0, // Increment streak if all users uploaded
             lastUpdated: today,
           });
 
           setUploadedImages([]); // Update UI state
-          setStreak(allUploaded ? groupData.streak + 1 : 0); // Update streak locally
+          setStreak(allUploaded ? groupData.streak : 0); // Update streak locally
         }
       }
     };
@@ -145,53 +145,60 @@ export default function GroupDetails() {
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Group Details</h1>
-      {group && (
-        <div>
-          <h2 className="text-xl font-semibold">{group.name}</h2>
-          <p className="mt-2">Streak: {streak} days</p>
+    <div className="min-h-screen bg-gradient-to-br from-violet-100 to-pink-100">
+      <div className="container mx-auto p-4 text-customPurple">
+        <h1 className="text-2xl font-bold mb-4">Group Details</h1>
+        {group && (
+          <div>
+            <h2 className="text-xl font-semibold">{group.name}</h2>
+            <p className="mt-2">Streak: {streak} days</p>
 
-          <input
-            type="file"
-            onChange={handleImageUpload}
-            className="mt-4 p-2 border rounded"
-          />
+            <input
+              type="file"
+              onChange={handleImageUpload}
+              className="mt-4 p-2 border rounded-2xl border-gray-300"
+            />
 
-          <div className="mt-6">
-            <h3 className="text-lg font-semibold">Group Members</h3>
-            {users.map((user) => {
-              const uploadedImage = uploadedImages.find((img) => img.userId === user.id);
-              return (
-                <div key={user.id} className="flex items-center mb-4">
-                  <div className="mr-4">
-                    <img
-                      src={uploadedImage ? uploadedImage.image : '/default-avatar.png'}
-                      alt={user.name}
-                      className="w-12 h-12 rounded-full"
-                    />
+            <div className="mt-6">
+              <h3 className="text-lg font-semibold">Group Members</h3>
+              {users.map((user) => {
+                const uploadedImage = uploadedImages.find((img) => img.userId === user.id);
+                return (
+                  <div key={user.id} className="flex items-center mb-4">
+                    <div className="mr-4">
+                      <img
+                        src={uploadedImage ? uploadedImage.image : '/default-avatar.png'}
+                        alt={user.name}
+                        className="w-12 h-12 rounded-full"
+                      />
+                    </div>
+                    <span className="text-lg">{user.name}</span>
                   </div>
-                  <span className="text-lg">{user.name}</span>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
 
-          <div className="mt-6">
-            <h3 className="text-lg font-semibold">Uploaded Images</h3>
-            <div className="flex flex-wrap">
-              {uploadedImages.map((img, index) => (
-                <img
-                  key={index}
-                  src={img.image}
-                  alt={`Upload ${index}`}
-                  className="w-24 h-24 m-2 object-cover rounded"
-                />
-              ))}
+            <div className="mt-10 bg-gradient-to-br from-violet-100 to-pink-100 p-4 text-customPurple">
+              <h3 className="text-lg font-semibold">Uploaded Images</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-8">
+                {uploadedImages.map((uploadedImage) => {
+                  const user = users.find((u) => u.id === uploadedImage.userId);
+                  return (
+                    <div key={uploadedImage.userId} className="flex flex-col items-center">
+                      <img
+                        src={uploadedImage.image}
+                        alt={`${user?.name}'s upload`}
+                        className="w-64 h-64 object-cover rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300"
+                      />
+                      <p className="mt-2 font-medium">{user?.name}</p>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

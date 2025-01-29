@@ -77,37 +77,41 @@ export default function DashboardPage() {
   };
 
   return (
-    <section className="bg-gradient-to-r from-violet-100 to-pink-100 h-screen w-screen">
-      <div className="min-h-screen bg-gradient-to-r from-violet-100 to-pink-100">
-        <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-          <div className="px-4 py-6 sm:px-0">
-            <h1 className="text-2xl font-semibold text-darkText">Your Groups</h1>
-            <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {groups.map((group) => (
-                <HabitTrackerCard
-                  key={group.id}
-                  group={group}
-                  onDelete={handleDeleteGroup}
-                  onJoin={handleJoinGroup}
-                />
-              ))}
-            </div>
-            <div className="mt-8 flex gap-4">
-              <Button variant="secondary" onClick={openModal}>Create New Group</Button>
-              <form onSubmit={handleJoinGroup} className="flex items-center gap-2">
-                <input
-                  type="text"
-                  placeholder="Enter Group Code"
-                  value={joinGroupCode}
-                  onChange={(e) => setJoinGroupCode(e.target.value)}
-                  className="p-2 border border-gray-300 rounded-md"
-                  required
-                />
-                <Button type="submit">Join Group</Button>
-              </form>
-            </div>
+    <section className="bg-gradient-to-br from-violet-100 to-pink-100 p-4 text-customPurple min-h-screen  py-8">
+      <div className="container mx-auto px-4">
+        <div className="flex flex-col sm:flex-row justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold mb-4 sm:mb-0 text-black">My Groups</h1>
+          <div className="flex flex-col sm:flex-row gap-4 text-black ">
+            <Button onClick={openModal} className="w-full p-5 sm:w-auto ">
+              Create New Group
+            </Button>
+            <form onSubmit={handleJoinGroup} className="flex flex-col sm:flex-row gap-4">
+              <input
+                type="text"
+                placeholder="Enter Group ID"
+                value={joinGroupCode}
+                onChange={(e) => setJoinGroupCode(e.target.value)}
+                className="px-4 py-2 border border-gray-300 rounded-md w-full sm:w-auto"
+                required
+              />
+              <Button type="submit" className="w-full sm:w-auto p-5">
+                Join Group
+              </Button>
+            </form>
           </div>
+        </div>
+
+        <main className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {groups.map((group) => (
+            <HabitTrackerCard
+              key={group.id}
+              group={group}
+              onDelete={handleDeleteGroup}
+              onJoin={handleJoinGroup}
+            />
+          ))}
         </main>
+
         {isModalOpen && (
           <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
             <div className="bg-white p-8 rounded-lg w-1/3">

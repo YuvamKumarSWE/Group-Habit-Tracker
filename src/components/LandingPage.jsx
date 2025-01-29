@@ -28,7 +28,7 @@ const LandingPage = () => {
             </p>
             <Button onClick={handleSubmit} className='bg-purple-300 md:text-xl'>
               <AnimatedShinyText shimmerWidth={40} >
-                Get Started
+                Get Started!
               </AnimatedShinyText>
               
             </Button>

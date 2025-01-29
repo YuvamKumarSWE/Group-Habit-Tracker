@@ -24,57 +24,8 @@ export default function GroupDetails() {
       }
     });
 
-    // Check and reset if needed on initial load
-    const resetIfNeeded = async () => {
-      const now = new Date();
-      const today = now.toISOString().split('T')[0];
-
-      const groupSnap = await getDoc(groupRef);
-      if (groupSnap.exists()) {
-        const groupData = groupSnap.data();
-        const lastUpdated = groupData.lastUpdated || '';
-
-        // If last update wasn't today, perform reset
-        if (lastUpdated !== today) {
-          // Check if all users uploaded their images before midnight
-          const allUploaded = groupData.userIds.every((id) =>
-            groupData.uploadedImages.some((img) => img.userId === id)
-          );
-
-          await updateDoc(groupRef, {
-            uploadedImages: [], // Reset images
-            streak: allUploaded ? groupData.streak : 0, // Increment streak if all users uploaded
-            lastUpdated: today,
-          });
-
-          setUploadedImages([]); // Update UI state
-          setStreak(allUploaded ? groupData.streak : 0); // Update streak locally
-        }
-      }
-    };
-
-    resetIfNeeded();
-
-    // Set up future midnight checks
-    const getMsUntilMidnight = () => {
-      const now = new Date();
-      const tomorrow = new Date(now);
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      tomorrow.setHours(0, 0, 0, 0);
-      return tomorrow - now;
-    };
-
-    // Initial timeout to sync with midnight
-    const initialTimeout = setTimeout(() => {
-      resetIfNeeded();
-      // Then set up daily interval
-      const dailyCheck = setInterval(resetIfNeeded, 24 * 60 * 60 * 1000);
-      return () => clearInterval(dailyCheck);
-    }, getMsUntilMidnight());
-
     return () => {
       unsubscribe();
-      clearTimeout(initialTimeout);
     };
   }, [groupId]);
 
@@ -172,6 +123,65 @@ export default function GroupDetails() {
     };
     reader.readAsDataURL(file);
   };
+
+  const resetIfNeeded = async () => {
+    const groupRef = doc(db, 'groups', groupId);
+    const now = new Date();
+    const today = now.toISOString().split('T')[0];
+    
+    const groupSnap = await getDoc(groupRef);
+    if (groupSnap.exists()) {
+      const groupData = groupSnap.data();
+      const lastUpdated = groupData.lastUpdated || '';
+  
+      // Check if any user missed uploading their image
+      const allUsersUploaded = groupData.userIds.every(userId => 
+        groupData.uploadedImages.some(img => img.userId === userId)
+      );
+  
+      // Reset if not everyone uploaded
+      if (!allUsersUploaded) {
+        await updateDoc(groupRef, {
+          uploadedImages: [], // Reset images
+          streak: 0, // Reset streak to 0
+          lastUpdated: today,
+        });
+  
+        setUploadedImages([]); // Update UI state
+        setStreak(0); // Update streak locally
+      } else {
+        // If everyone uploaded, just clear images but maintain streak
+        await updateDoc(groupRef, {
+          uploadedImages: [],
+          lastUpdated: today,
+        });
+        
+        setUploadedImages([]);
+      }
+    }
+  };
+  
+  // Set up the midnight reset timer
+  useEffect(() => {
+    const scheduleNextReset = () => {
+      const now = new Date();
+      const tomorrow = new Date(now);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(0, 0, 0, 0);
+      
+      const msUntilMidnight = tomorrow - now;
+      
+      return setTimeout(() => {
+        resetIfNeeded();
+        // Set up the next day's reset
+        const dailyReset = setInterval(resetIfNeeded, 24 * 60 * 60 * 1000);
+        return () => clearInterval(dailyReset);
+      }, msUntilMidnight);
+    };
+  
+    const timeoutId = scheduleNextReset();
+    return () => clearTimeout(timeoutId);
+  }, [groupId]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-violet-100 to-pink-100">

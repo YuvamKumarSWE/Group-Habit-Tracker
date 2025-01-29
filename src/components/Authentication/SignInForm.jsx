@@ -9,7 +9,7 @@ import {
 } from "firebase/auth";
 import { auth, db } from "../../firebase";
 import { doc, setDoc } from "firebase/firestore";
-import Toast from '../UI/Toast';
+import Toast from "./Toast";
 
 const SignInForm = () => {
   const [email, setEmail] = useState("");

@@ -126,44 +126,48 @@ export default function GroupDetails() {
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
         
         const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
-        // Continue with your existing upload logic using dataUrl
-        const userId = auth.currentUser.uid;
-
-        // Check if the user has already uploaded
-        const existingImage = uploadedImages.find((img) => img.userId === userId);
-
-        // Replace the user's image or add a new entry
-        const updatedImages = existingImage
-          ? uploadedImages.map((img) =>
-              img.userId === userId ? { userId, image: dataUrl } : img
-            )
-          : [...uploadedImages, { userId, image: dataUrl }];
-
-        // Fetch server time for consistency
-        const today = new Date().toISOString().split('T')[0];
-        const allUploaded =
-          group.userIds &&
-          group.userIds.every((id) =>
-            updatedImages.some((img) => img.userId === id)
-          );
-
-        let newStreak = streak;
-        if (!existingImage && allUploaded) {
-          newStreak += 1; // Increment streak only if all users have uploaded and it's a new upload
-        }
-
-        await updateDoc(doc(db, 'groups', groupId), {
-          uploadedImages: updatedImages,
-          streak: newStreak,
-          lastUpdated: today,
-        });
-
-        setUploadedImages(updatedImages); // Update UI state
-        setStreak(newStreak); // Update streak locally
-
-        if (allUploaded && !existingImage) {
-          alert('All users have uploaded their images! Streak increased.');
-        }
+        
+        // Create async function to handle the update
+        const updateGroupData = async () => {
+          const userId = auth.currentUser.uid;
+          const existingImage = uploadedImages.find((img) => img.userId === userId);
+      
+          const updatedImages = existingImage
+            ? uploadedImages.map((img) =>
+                img.userId === userId ? { userId, image: dataUrl } : img
+              )
+            : [...uploadedImages, { userId, image: dataUrl }];
+      
+          const today = new Date().toISOString().split('T')[0];
+          const allUploaded = group.userIds &&
+            group.userIds.every((id) => updatedImages.some((img) => img.userId === id));
+      
+          let newStreak = streak;
+          if (!existingImage && allUploaded) {
+            newStreak += 1;
+          }
+      
+          try {
+            await updateDoc(doc(db, 'groups', groupId), {
+              uploadedImages: updatedImages,
+              streak: newStreak,
+              lastUpdated: today,
+            });
+      
+            setUploadedImages(updatedImages);
+            setStreak(newStreak);
+      
+            if (allUploaded && !existingImage) {
+              alert('All users have uploaded their images! Streak increased.');
+            }
+          } catch (error) {
+            console.error('Error updating group data:', error);
+            alert('Failed to update group data. Please try again.');
+          }
+        };
+      
+        // Call the async function
+        updateGroupData();
       };
     };
     reader.readAsDataURL(file);

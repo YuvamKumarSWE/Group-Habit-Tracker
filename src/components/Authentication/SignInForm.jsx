@@ -9,6 +9,7 @@ import {
 } from "firebase/auth";
 import { auth, db } from "../../firebase";
 import { doc, setDoc } from "firebase/firestore";
+import Toast from '../UI/Toast';
 
 const SignInForm = () => {
   const [email, setEmail] = useState("");
@@ -16,6 +17,9 @@ const SignInForm = () => {
   const [retypePassword, setRetypePassword] = useState("");
   const [name, setName] = useState("");
   const [isSignUp, setIsSignUp] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [toastType, setToastType] = useState('success');
 
   const handleAuth = async () => {
     try {
@@ -28,13 +32,22 @@ const SignInForm = () => {
         const user = userCredential.user;
         await updateProfile(user, { displayName: name });
         await setDoc(doc(db, "users", user.uid), { name, email });
-        alert("User registered successfully!");
+        setToastMessage('User registered successfully!');
+        setToastType('success');
+        setShowToast(true);
+        setTimeout(() => setShowToast(false), 3000);
       } else {
         await signInWithEmailAndPassword(auth, email, password);
-        alert("Signed in successfully!");
+        setToastMessage('Signed in successfully!');
+        setToastType('success');
+        setShowToast(true);
+        setTimeout(() => setShowToast(false), 3000);
       }
     } catch (error) {
-      alert(error.message);
+      setToastMessage(error.message);
+      setToastType('error');
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
     }
   };
 
@@ -49,14 +62,25 @@ const SignInForm = () => {
           email: user.email,
         });
       }
-      alert("Signed in with Google successfully!");
+      setToastMessage('Signed in with Google successfully!');
+      setToastType('success');
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
     } catch (error) {
-      alert(error.message);
+      setToastMessage(error.message);
+      setToastType('error');
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
     }
   };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-violet-100 to-pink-100 p-4 text-customPurple">
+      <Toast 
+        message={toastMessage}
+        type={toastType}
+        isVisible={showToast}
+      />
       <div className="bg-white shadow-md rounded-lg p-6 max-w-md w-full">
         <h2 className="font-bold text-2xl text-center mb-6">
           {isSignUp ? "Create an Account" : "Welcome Back"}

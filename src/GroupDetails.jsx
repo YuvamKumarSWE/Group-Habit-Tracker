@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import  { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { db, auth } from './firebase.js'; // Ensure Firebase Auth is initialized
-import { doc, getDoc, updateDoc, onSnapshot, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, onSnapshot } from 'firebase/firestore';
 
 export default function GroupDetails() {
   const { groupId } = useParams();
@@ -24,164 +24,71 @@ export default function GroupDetails() {
       }
     });
 
-    return () => {
-      unsubscribe();
-    };
+    return () => unsubscribe();
   }, [groupId]);
 
   const fetchUsers = async (userIds) => {
     const userDocs = await Promise.all(
       userIds.map((id) => getDoc(doc(db, 'users', id)))
     );
-    const userData = userDocs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-    setUsers(userData);
+    setUsers(userDocs.map((doc) => ({ id: doc.id, ...doc.data() })));
   };
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
-    
-    // Validate file
-    if (!file) {
-      alert('No file selected');
+
+    if (!file || !file.type.startsWith('image/') || file.size > 5 * 1024 * 1024) {
+      alert('Invalid file. Please upload an image under 5MB.');
       return;
     }
-  
-    // Check if file is an image
-    if (!file.type.startsWith('image/')) {
-      alert('Please select an image file');
-      return;
-    }
-  
-    // Check file size (limit to 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      alert('File is too large. Please select an image under 5MB');
-      return;
-    }
-  
+
     const reader = new FileReader();
     reader.onload = async (event) => {
-      // Compress image before upload
       const img = new Image();
       img.src = event.target.result;
-      img.onload = () => {
+      img.onload = async () => {
         const canvas = document.createElement('canvas');
         const MAX_WIDTH = 1200;
         const scaleSize = MAX_WIDTH / img.width;
         canvas.width = MAX_WIDTH;
         canvas.height = img.height * scaleSize;
-  
+
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        
+
         const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
-        
-        // Create async function to handle the update
-        const updateGroupData = async () => {
-          const userId = auth.currentUser.uid;
-          const existingImage = uploadedImages.find((img) => img.userId === userId);
-      
-          const updatedImages = existingImage
-            ? uploadedImages.map((img) =>
-                img.userId === userId ? { userId, image: dataUrl } : img
-              )
-            : [...uploadedImages, { userId, image: dataUrl }];
-      
-          const today = new Date().toISOString().split('T')[0];
-          const allUploaded = group.userIds &&
-            group.userIds.every((id) => updatedImages.some((img) => img.userId === id));
-      
-          let newStreak = streak;
-          if (!existingImage && allUploaded) {
-            newStreak += 1;
+        const userId = auth.currentUser.uid;
+
+        const existingImage = uploadedImages.find((img) => img.userId === userId);
+        const updatedImages = existingImage
+          ? uploadedImages.map((img) =>
+              img.userId === userId ? { userId, image: dataUrl } : img
+            )
+          : [...uploadedImages, { userId, image: dataUrl }];
+
+        try {
+          await updateDoc(doc(db, 'groups', groupId), { uploadedImages: updatedImages });
+          setUploadedImages(updatedImages);
+
+          // Check if all members have uploaded their images
+          const allUploaded = group.userIds.every((userId) =>
+            updatedImages.some((img) => img.userId === userId)
+          );
+
+          if (allUploaded) {
+            const newStreak = group.streak + 1; // Increment streak
+            await updateDoc(doc(db, 'groups', groupId), { streak: newStreak });
+            setStreak(newStreak); // Update local streak state
           }
-      
-          try {
-            await updateDoc(doc(db, 'groups', groupId), {
-              uploadedImages: updatedImages,
-              streak: newStreak,
-              lastUpdated: today,
-            });
-      
-            setUploadedImages(updatedImages);
-            setStreak(newStreak);
-      
-            if (allUploaded && !existingImage) {
-              alert('All users have uploaded their images! Streak increased.');
-            }
-          } catch (error) {
-            console.error('Error updating group data:', error);
-            alert('Failed to update group data. Please try again.');
-          }
-        };
-      
-        // Call the async function
-        updateGroupData();
+
+        } catch (error) {
+          console.error('Error updating group data:', error);
+          alert('Failed to update group data. Please try again.');
+        }
       };
     };
     reader.readAsDataURL(file);
   };
-
-  const resetIfNeeded = async () => {
-    const groupRef = doc(db, 'groups', groupId);
-    const now = new Date();
-    const today = now.toISOString().split('T')[0];
-    
-    const groupSnap = await getDoc(groupRef);
-    if (groupSnap.exists()) {
-      const groupData = groupSnap.data();
-      const lastUpdated = groupData.lastUpdated || '';
-  
-      // Check if any user missed uploading their image
-      const allUsersUploaded = groupData.userIds.every(userId => 
-        groupData.uploadedImages.some(img => img.userId === userId)
-      );
-  
-      // Reset if not everyone uploaded
-      if (!allUsersUploaded) {
-        await updateDoc(groupRef, {
-          uploadedImages: [], // Reset images
-          streak: 0, // Reset streak to 0
-          lastUpdated: today,
-        });
-  
-        setUploadedImages([]); // Update UI state
-        setStreak(0); // Update streak locally
-      } else {
-        // If everyone uploaded, just clear images but maintain streak
-        await updateDoc(groupRef, {
-          uploadedImages: [],
-          lastUpdated: today,
-        });
-        
-        setUploadedImages([]);
-      }
-    }
-  };
-  
-  // Set up the midnight reset timer
-  useEffect(() => {
-    const scheduleNextReset = () => {
-      const now = new Date();
-      const tomorrow = new Date(now);
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      tomorrow.setHours(0, 0, 0, 0);
-      
-      const msUntilMidnight = tomorrow - now;
-      
-      return setTimeout(() => {
-        resetIfNeeded();
-        // Set up the next day's reset
-        const dailyReset = setInterval(resetIfNeeded, 24 * 60 * 60 * 1000);
-        return () => clearInterval(dailyReset);
-      }, msUntilMidnight);
-    };
-  
-    const timeoutId = scheduleNextReset();
-    return () => clearTimeout(timeoutId);
-  }, [groupId]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-violet-100 to-pink-100">
@@ -195,8 +102,7 @@ export default function GroupDetails() {
             <input
               type="file"
               onChange={handleImageUpload}
-              accept="image/*;capture=camera"
-              capture="environment"
+              accept="image/*"
               className="mt-4 p-2 border rounded-2xl border-gray-300"
             />
 

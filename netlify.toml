@@ -1,0 +1,3 @@
+[[schedule]]
+  expression = "0 0 * * *"  # Run at midnight UTC every day
+  function = "resetStreakAndDeleteImages"

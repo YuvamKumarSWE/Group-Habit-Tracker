@@ -18,7 +18,24 @@
   "functions": [
     {
       "source": "habit-functions",
+      "functions": {
+        "runtime": "nodejs20"
+      },
       "codebase": "default",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ],
+      "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR\" run lint"
+      ]
+    },
+    {
+      "source": " ",
+      "codebase": "habit-functions",
       "ignore": [
         "node_modules",
         ".git",

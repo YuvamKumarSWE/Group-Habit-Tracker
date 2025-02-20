@@ -1,6 +1,6 @@
-import  { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { db, auth } from './firebase.js'; // Ensure Firebase Auth is initialized
+import { db, auth } from './firebase.js';
 import { doc, getDoc, updateDoc, onSnapshot } from 'firebase/firestore';
 
 export default function GroupDetails() {
@@ -9,9 +9,24 @@ export default function GroupDetails() {
   const [users, setUsers] = useState([]);
   const [uploadedImages, setUploadedImages] = useState([]);
   const [streak, setStreak] = useState(0);
+  const [hasUploadedToday, setHasUploadedToday] = useState(false);
 
   useEffect(() => {
     const groupRef = doc(db, 'groups', groupId);
+
+    // Get current user's ID
+    const currentUserId = auth.currentUser?.uid;
+
+    // Get the user's uploaded image today
+    const checkTodayUpload = async () => {
+      const today = new Date().toISOString().split('T')[0];
+      const groupDoc = await getDocDoc(groupRef);
+      const groupData = groupDoc.data();
+      const existingImage = groupData?.uploadedImages?.find(
+        (img) => img.userId === currentUserId && img.date === today
+      );
+      setHasUploadedToday(!!existingImage);
+    };
 
     // Subscribe to group changes
     const unsubscribe = onSnapshot(groupRef, (docSnapshot) => {
@@ -24,7 +39,7 @@ export default function GroupDetails() {
       }
     });
 
-    return () => unsubscribe();
+    return () =>unsubscribe();
   }, [groupId]);
 
   const fetchUsers = async (userIds) => {
@@ -34,9 +49,8 @@ export default function GroupDetails() {
     setUsers(userDocs.map((doc) => ({ id: doc.id, ...doc.data() })));
   };
 
-  const handleImageUpload = (e) => {
+  const handleImageUpload = async (e) => {
     const file = e.target.files[0];
-
     if (!file || !file.type.startsWith('image/') || file.size > 5 * 1024 * 1024) {
       alert('Invalid file. Please upload an image under 5MB.');
       return;
@@ -59,28 +73,46 @@ export default function GroupDetails() {
         const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
         const userId = auth.currentUser.uid;
 
-        const existingImage = uploadedImages.find((img) => img.userId === userId);
-        const updatedImages = existingImage
-          ? uploadedImages.map((img) =>
-              img.userId === userId ? { userId, image: dataUrl } : img
-            )
-          : [...uploadedImages, { userId, image: dataUrl }];
+        // Check if user has already uploaded today
+        const today = new Date().toISOString().split('T')[0];
+        const existingImage = uploadedImages.find(
+          (img) => img.userId === userId && img.date === today
+        );
 
         try {
-          await updateDoc(doc(db, 'groups', groupId), { uploadedImages: updatedImages });
-          setUploadedImages(updatedImages);
+          const groupRef = doc(db, 'groups', groupId);
+          const updatedImages = existingImage
+            ? uploadedImages.map((img) =>
+                img.userId === userId ? { ...img, image: dataUrl } : img
+              )
+            : [
+                ...uploadedImages,
+                { userId, image: dataUrl, date: today },
+              ];
 
-          // Check if all members have uploaded their images
-          const allUploaded = group.userIds.every((userId) =>
-            updatedImages.some((img) => img.userId === userId)
+          await updateDoc(groupRef, {
+            uploadedImages: updatedImages,
+          });
+
+          setUploadedImages(updatedImages);
+          setHasUploadedToday(true);
+
+          // Check if all members have uploaded today
+          const groupDoc = await getDoc(groupRef);
+          const allUploaded = groupDoc.data().userIds.every((userId) =>
+            updatedImages.some(
+              (img) => img.userId === userId && img.date === today
+            )
           );
 
           if (allUploaded) {
-            const newStreak = group.streak + 1; // Increment streak
-            await updateDoc(doc(db, 'groups', groupId), { streak: newStreak });
-            setStreak(newStreak); // Update local streak state
+            const newStreak = groupDoc.data().streak + 1;
+            await updateDoc(groupRef, {
+              streak: newStreak,
+              lastStreakUpdate: today,
+            });
+            setStreak(newStreak);
           }
-
         } catch (error) {
           console.error('Error updating group data:', error);
           alert('Failed to update group data. Please try again.');
@@ -89,6 +121,49 @@ export default function GroupDetails() {
     };
     reader.readAsDataURL(file);
   };
+
+  const checkDailyStreak = async () => {
+    const groupRef = doc(db, 'groups', groupId);
+    const groupDoc = await getDoc(groupRef);
+    const groupData = groupDoc.data();
+    const today = new Date().toISOString().split('T')[0];
+    const yesteday = new Date(new Date().setDate(new Date().getDate() - 1))
+      .toISOString()
+      .split('T')[0];
+
+    // Check if streak should be incremented
+    if (groupData.lastStreakUpdate === yesteday) {
+      const allUploadedToday = groupData.userIds.every((userId) =>
+        groupData.uploadedImages.some(
+          (img) => img.userId === userId && img.date === today
+        )
+      );
+
+      if (allUploadedToday) {
+        await updateDoc(groupRef, {
+          streak: groupData.streak + 1,
+          lastStreakUpdate: today,
+        });
+        setStreak(groupData.streak + 1);
+      } else {
+        await updateDoc(groupRef, {
+          streak: 0,
+          lastStreakUpdate: today,
+        });
+        setStreak(0);
+      }
+    }
+  };
+
+  // Run daily streak check at midnight
+  useEffect(() => {
+    const now = new Date();
+    const nextMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    const timeToMidnight = nextMidnight - now;
+
+    const timer = setTimeout(checkDailyStreak, timeToMidnight);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-violet-100 to-pink-100">
@@ -99,17 +174,25 @@ export default function GroupDetails() {
             <h2 className="text-xl font-semibold">{group.name}</h2>
             <p className="mt-2">Streak: {streak} days</p>
 
-            <input
-              type="file"
-              onChange={handleImageUpload}
-              accept="image/*"
-              className="mt-4 p-2 border rounded-2xl border-gray-300"
-            />
+            {auth.currentUser?.uid && !hasUploadedToday && (
+              <input
+                type="file"
+                onChange={handleImageUpload}
+                accept="image/*"
+                className="mt-4 p-2 border rounded-2xl border-gray-300"
+              />
+            )}
+
+            {hasUploadedToday && (
+              <p className="mt-4 text-green-500">Thank you for your daily contribution!</p>
+            )}
 
             <div className="mt-6">
               <h3 className="text-lg font-semibold">Group Members</h3>
               {users.map((user) => {
-                const uploadedImage = uploadedImages.find((img) => img.userId === user.id);
+                const uploadedImage = uploadedImages.find(
+                  (img) => img.userId === user.id
+                );
                 return (
                   <div key={user.id} className="flex items-center mb-4">
                     <div className="mr-4">
@@ -138,6 +221,9 @@ export default function GroupDetails() {
                         className="w-64 h-64 object-cover rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300"
                       />
                       <p className="mt-2 font-medium">{user?.name}</p>
+                      <p className="text-sm text-gray-500">
+                        Uploaded: {new Date(uploadedImage.date).toLocaleDateString()}
+                      </p>
                     </div>
                   );
                 })}

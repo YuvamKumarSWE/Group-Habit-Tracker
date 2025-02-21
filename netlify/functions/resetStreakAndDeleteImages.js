@@ -12,7 +12,7 @@ if (!getApps().length) {
 
 const db = getFirestore();
 
-exports.handler = async function(event, context) {
+export async function handler(event, context) {
   // Fetch all group IDs or use a specific group ID
   const groupsRef = db.collection('groups');
   const groupsSnapshot = await groupsRef.get();

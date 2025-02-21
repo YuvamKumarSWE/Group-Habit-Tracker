@@ -1,3 +1,2 @@
-[[schedule]]
-  expression = "0 0 * * *"  # Run at midnight UTC every day
-  function = "resetStreakAndDeleteImages"
+[functions.resetStreakAndDeleteImages]
+schedule = "0 0 * * *"    # Runs at midnight every day (UTC)

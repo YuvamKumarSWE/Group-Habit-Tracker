@@ -1,2 +1,2 @@
 [functions.resetStreakAndDeleteImages]
-schedule = "0 0 * * *"    # Runs at midnight every day (UTC)
+schedule = "0 8 * * *"    # Runs at 12 AM PST (8 AM UTC)

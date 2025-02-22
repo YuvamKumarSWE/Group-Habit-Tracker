@@ -4,12 +4,13 @@ const { getFirestore } = require('firebase-admin/firestore');
 // Initialize Firebase Admin SDK
 if (!getApps().length) {
   try {
+    const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
     initializeApp({
-      credential: cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY))
+      credential: cert(serviceAccount)
     });
   } catch (error) {
     console.error('Firebase initialization failed:', error);
-    throw error;
+    throw new Error('Failed to parse Firebase service account key. Please ensure it is a valid JSON string.');
   }
 }
 

@@ -18,11 +18,11 @@ const db = getFirestore();
 
 exports.handler = async (event, context) => {
   console.log('Starting reset streak and delete images function');
-  
+
   try {
     const groupsRef = db.collection('groups');
     const groupsSnapshot = await groupsRef.get();
-    
+
     if (groupsSnapshot.empty) {
       console.log('No groups found');
       return {
@@ -38,22 +38,26 @@ exports.handler = async (event, context) => {
         const today = new Date().toISOString().split('T')[0];
         const uploadedImages = groupData.uploadedImages || [];
         const userIds = groupData.userIds || [];
-        const lastStreakUpdate = groupData.lastStreakUpdate;
+        const lastStreakUpdate = groupData.lastStreakUpdate || null;
 
         console.log(`Processing group ${groupId}: ${userIds.length} users, ${uploadedImages.length} images`);
 
         // Check if all users uploaded today
-        const hasAllUploaded = userIds.every((userId) =>
-          uploadedImages.some(
-            (img) => img.userId === userId && img.date === today
-          )
+        const allUsersUploaded = userIds.every(userId =>
+          uploadedImages.some(img => img.userId === userId && img.date === today)
         );
 
         let newStreak = groupData.streak || 0;
-        
-        // Only update streak if it hasn't been updated today
+
+        // Always reset the images
+        let updateData = {
+          uploadedImages: [],
+          lastStreakUpdate: today
+        };
+
+        // If last streak update was today, we don't update again
         if (lastStreakUpdate !== today) {
-          if (hasAllUploaded) {
+          if (allUsersUploaded) {
             newStreak += 1;
             console.log(`Group ${groupId}: Streak increased to ${newStreak}`);
           } else {
@@ -62,12 +66,10 @@ exports.handler = async (event, context) => {
           }
         }
 
-        // Update the group data
-        return groupDoc.ref.update({
-          uploadedImages: [],
-          streak: newStreak,
-          lastStreakUpdate: today,
-        });
+        updateData.streak = newStreak;
+
+        // Update the group document
+        return groupDoc.ref.update(updateData);
       } catch (error) {
         console.error(`Error processing group ${groupDoc.id}:`, error);
         throw error;
@@ -75,9 +77,9 @@ exports.handler = async (event, context) => {
     });
 
     await Promise.all(updatePromises);
-    
+
     console.log('Successfully completed processing all groups');
-    
+
     return {
       statusCode: 200,
       body: JSON.stringify({

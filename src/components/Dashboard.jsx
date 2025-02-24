@@ -4,6 +4,7 @@ import { db, auth } from '@/firebase';
 import { collection, addDoc, getDocs, deleteDoc, doc, query, where, updateDoc, arrayUnion } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import HabitTrackerCard from './HabitTrackerCard';
+import { Toaster, toast } from 'react-hot-toast';
 
 export default function DashboardPage() {
   const [groups, setGroups] = useState([]);
@@ -46,6 +47,7 @@ export default function DashboardPage() {
     setGroups([...groups, { id: docRef.id, ...newGroupData }]);
     setNewGroup({ name: '', groupCode: '' });
     closeModal();
+    toast.success('New group created successfully!');
   };
 
   const handleJoinGroup = async (e) => {
@@ -65,15 +67,28 @@ export default function DashboardPage() {
 
       setGroups([...groups, { id: groupDoc.id, ...groupDoc.data() }]);
       setJoinGroupCode('');
-      alert('Successfully joined the group!');
+      toast.success('Successfully joined the group!', {
+        duration: 4000,
+        style: {
+          background: '#333',
+          color: '#fff',
+        },
+      });
     } else {
-      alert('Group not found!');
+      toast.error('Group not found. Please check the group code.', {
+        duration: 4000,
+        style: {
+          background: '#333',
+          color: '#fff',
+        },
+      });
     }
   };
 
   const handleDeleteGroup = async (id) => {
     await deleteDoc(doc(db, "groups", id));
     setGroups(groups.filter(group => group.id !== id));
+    toast.success('Group deleted successfully');
   };
 
   return (
@@ -113,9 +128,9 @@ export default function DashboardPage() {
         </main>
 
         {isModalOpen && (
-          <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
-            <div className="bg-white p-8 rounded-lg w-1/3">
-              <h2 className="text-2xl font-semibold mb-4">Create New Group</h2>
+          <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center p-4">
+            <div className="bg-white p-4 sm:p-8 rounded-lg w-full max-w-[90%] sm:max-w-[80%] md:max-w-[60%] lg:max-w-[40%]">
+              <h2 className="text-xl sm:text-2xl font-semibold mb-4">Create New Group</h2>
               <form onSubmit={handleFormSubmit}>
                 <div className="mb-4">
                   <label htmlFor="name" className="block text-sm font-medium text-darkText">Group Name</label>
@@ -128,8 +143,8 @@ export default function DashboardPage() {
                     required
                   />
                 </div>
-                <div className="flex justify-end text-black">
-                  <Button type="button" onClick={closeModal} className="mr-4">Cancel</Button>
+                <div className="flex justify-end text-black gap-2">
+                  <Button type="button" onClick={closeModal}>Cancel</Button>
                   <Button type="submit">Create Group</Button>
                 </div>
               </form>
@@ -137,6 +152,7 @@ export default function DashboardPage() {
           </div>
         )}
       </div>
+      <Toaster position="top-center" reverseOrder={false} />
     </section>
   );
 }

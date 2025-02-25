@@ -1,7 +1,7 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import PropTypes from 'prop-types';
 
 function HabitTrackerCard({ group, onDelete, onJoin }) {
   const handleDelete = (e) => {
@@ -35,5 +35,16 @@ function HabitTrackerCard({ group, onDelete, onJoin }) {
     </div>
   );
 }
+
+HabitTrackerCard.propTypes = {
+  group: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    streak: PropTypes.number.isRequired,
+    groupCode: PropTypes.string.isRequired,
+  }).isRequired,
+  onDelete: PropTypes.func.isRequired,
+  onJoin: PropTypes.func.isRequired,
+};
 
 export default HabitTrackerCard;

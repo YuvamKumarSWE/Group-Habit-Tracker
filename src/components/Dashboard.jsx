@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { db, auth } from '@/firebase';
 import { collection, addDoc, getDocs, deleteDoc, doc, query, where, updateDoc, arrayUnion } from 'firebase/firestore';

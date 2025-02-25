@@ -1,3 +1,5 @@
+import PropTypes from 'prop-types';
+
 const Toast = ({ message, type, isVisible }) => {
   return (
     <div
@@ -10,6 +12,12 @@ const Toast = ({ message, type, isVisible }) => {
       {message}
     </div>
   );
+};
+
+Toast.propTypes = {
+  message: PropTypes.string.isRequired,
+  type: PropTypes.oneOf(['success', 'error']).isRequired,
+  isVisible: PropTypes.bool.isRequired,
 };
 
 export default Toast;

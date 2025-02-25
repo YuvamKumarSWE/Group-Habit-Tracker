@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { db, auth } from './firebase.js';
+import { db, auth } from '../firebase.js';
 import { doc, getDoc, updateDoc, onSnapshot } from 'firebase/firestore';
 
 export default function GroupDetails() {

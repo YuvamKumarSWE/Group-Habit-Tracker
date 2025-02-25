@@ -5,7 +5,7 @@ import { auth } from "./firebase";
 import DashboardPage from "./components/Dashboard";
 import LandingPage from "./components/LandingPage";
 import SignInForm from "./components/Authentication/SignInForm";
-import GroupDetails from "./GroupDetails";
+import GroupDetails from "./components/GroupDetails";
 
 const App = () => {
   const [user, setUser] = useState(null);

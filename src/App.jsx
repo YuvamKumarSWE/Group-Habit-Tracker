@@ -7,17 +7,30 @@ import LandingPage from "./components/LandingPage";
 import SignInForm from "./components/Authentication/SignInForm";
 import GroupDetails from "./components/GroupDetails";
 
+/**
+ * Root component of the application
+ * Manages global authentication state and routing
+ * @returns {JSX.Element} The main application component
+ */
 const App = () => {
   const [user, setUser] = useState(null);
 
-  useEffect(() => {
+  /**
+ * Sets up authentication state listener
+ * Updates local user state based on Firebase auth state changes
+ */
+useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
     });
     return () => unsubscribe();
   }, []);
 
-  const handleSignOut = async () => {
+  /**
+ * Handles user sign-out functionality
+ * Calls Firebase auth signOut method and handles any potential errors
+ */
+const handleSignOut = async () => {
     try {
       await signOut(auth);
     } catch (error) {

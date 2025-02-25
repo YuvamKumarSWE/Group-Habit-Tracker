@@ -6,14 +6,27 @@ import { onAuthStateChanged } from 'firebase/auth';
 import HabitTrackerCard from './HabitTrackerCard';
 import { Toaster, toast } from 'react-hot-toast';
 
+/**
+ * Dashboard Page Component
+ * Main interface for authenticated users
+ * Manages groups, habits, and user interactions
+ * @returns {JSX.Element} The dashboard interface
+ */
 export default function DashboardPage() {
-  const [groups, setGroups] = useState([]);
-  const [user, setUser] = useState(null);
+  // State for managing user's groups
+const [groups, setGroups] = useState([]);
+  // State for managing current user
+const [user, setUser] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newGroup, setNewGroup] = useState({ name: '', groupCode: '' });
   const [joinGroupCode, setJoinGroupCode] = useState('');
 
-  useEffect(() => {
+  /**
+ * Effect hook to handle authentication state and group data fetching
+ * Sets up real-time listener for auth state changes
+ * Fetches user's groups when authenticated
+ */
+useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
         setUser(currentUser);
@@ -33,10 +46,19 @@ export default function DashboardPage() {
     return () => unsubscribe();
   }, []);
 
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
+  /**
+ * Modal control functions
+ * Handles opening and closing of the group creation modal
+ */
+const openModal = () => setIsModalOpen(true);
+const closeModal = () => setIsModalOpen(false);
 
-  const handleFormSubmit = async (e) => {
+  /**
+ * Handles the creation of a new group
+ * @param {Event} e - The form submission event
+ * Generates a unique group code and creates a new group in Firestore
+ */
+const handleFormSubmit = async (e) => {
     e.preventDefault();
     if (!user) return;
 
@@ -50,7 +72,12 @@ export default function DashboardPage() {
     toast.success('New group created successfully!');
   };
 
-  const handleJoinGroup = async (e) => {
+  /**
+ * Handles the process of joining an existing group
+ * @param {Event} e - The form submission event
+ * Validates the group code and adds the user to the group if found
+ */
+const handleJoinGroup = async (e) => {
     e.preventDefault();
     if (!user || !joinGroupCode) return;
 

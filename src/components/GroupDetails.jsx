@@ -3,81 +3,86 @@ import { useParams } from 'react-router-dom';
 import { db, auth } from '../firebase.js';
 import { doc, getDoc, updateDoc, onSnapshot } from 'firebase/firestore';
 
+// Main component to display group details
 export default function GroupDetails() {
-  const { groupId } = useParams();
-  const [group, setGroup] = useState(null);
-  const [users, setUsers] = useState([]);
-  const [uploadedImages, setUploadedImages] = useState([]);
-  const [hasUploadedToday, setHasUploadedToday] = useState(false);
+  const { groupId } = useParams(); // Retrieve the groupId from the URL parameters
+  const [group, setGroup] = useState(null); // State to store group data
+  const [users, setUsers] = useState([]); // State to store user data
+  const [uploadedImages, setUploadedImages] = useState([]); // State to store uploaded images
+  const [hasUploadedToday, setHasUploadedToday] = useState(false); // State to track if the user has uploaded an image today
 
   useEffect(() => {
-    const groupRef = doc(db, 'groups', groupId);
-    const currentUserId = auth.currentUser?.uid;
+    const groupRef = doc(db, 'groups', groupId); // Reference to the group document in Firestore
+    const currentUserId = auth.currentUser?.uid; // Get the current user's ID
 
+    // Function to check if the user has uploaded an image today
     const checkTodayUpload = async () => {
-      const today = new Date().toISOString().split('T')[0];
-      const groupDoc = await getDoc(groupRef);
-      const groupData = groupDoc.data();
+      const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
+      const groupDoc = await getDoc(groupRef); // Fetch the group document
+      const groupData = groupDoc.data(); // Extract data from the document
       const existingImage = groupData?.uploadedImages?.find(
         (img) => img.userId === currentUserId && img.date === today
       );
-      setHasUploadedToday(!!existingImage);
+      setHasUploadedToday(!!existingImage); // Update state based on whether an image was found
     };
 
     if (currentUserId) {
-      checkTodayUpload();
+      checkTodayUpload(); // Check today's upload if the user is logged in
     }
 
+    // Set up a real-time listener for the group document
     const unsubscribe = onSnapshot(groupRef, (docSnapshot) => {
       if (docSnapshot.exists()) {
-        const data = docSnapshot.data();
-        setGroup(data);
-        setUploadedImages(data.uploadedImages || []);
-        fetchUsers(data.userIds || []);
+        const data = docSnapshot.data(); // Extract data from the snapshot
+        setGroup(data); // Update group state
+        setUploadedImages(data.uploadedImages || []); // Update uploaded images state
+        fetchUsers(data.userIds || []); // Fetch user data
       }
     });
 
-    return () => unsubscribe();
+    return () => unsubscribe(); // Clean up the listener on component unmount
   }, [groupId]);
 
+  // Function to fetch user data based on user IDs
   const fetchUsers = async (userIds) => {
     const userDocs = await Promise.all(
-      userIds.map((id) => getDoc(doc(db, 'users', id)))
+      userIds.map((id) => getDoc(doc(db, 'users', id))) // Fetch each user document
     );
-    setUsers(userDocs.map((doc) => ({ id: doc.id, ...doc.data() })));
+    setUsers(userDocs.map((doc) => ({ id: doc.id, ...doc.data() }))); // Update users state
   };
 
+  // Function to handle image upload
   const handleImageUpload = async (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files[0]; // Get the selected file
     if (!file || !file.type.startsWith('image/') || file.size > 5 * 1024 * 1024) {
-      alert('Invalid file. Please upload an image under 5MB.');
+      alert('Invalid file. Please upload an image under 5MB.'); // Validate file type and size
       return;
     }
 
-    const reader = new FileReader();
+    const reader = new FileReader(); // Create a FileReader to read the file
     reader.onload = async (event) => {
-      const img = new Image();
-      img.src = event.target.result;
+      const img = new Image(); // Create an Image object
+      img.src = event.target.result; // Set the image source to the file data
       img.onload = async () => {
-        const canvas = document.createElement('canvas');
-        const MAX_WIDTH = 1200;
-        const scaleSize = MAX_WIDTH / img.width;
-        canvas.width = MAX_WIDTH;
-        canvas.height = img.height * scaleSize;
+        const canvas = document.createElement('canvas'); // Create a canvas element
+        const MAX_WIDTH = 1200; // Define maximum width for the image
+        const scaleSize = MAX_WIDTH / img.width; // Calculate scale size
+        canvas.width = MAX_WIDTH; // Set canvas width
+        canvas.height = img.height * scaleSize; // Set canvas height
 
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        const ctx = canvas.getContext('2d'); // Get the canvas context
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // Draw the image on the canvas
 
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
-        const userId = auth.currentUser.uid;
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.8); // Convert canvas to a data URL
+        const userId = auth.currentUser.uid; // Get the current user's ID
 
-        const today = new Date().toISOString().split('T')[0];
+        const today = new Date().toISOString().split('T')[0]; // Get today's date
         const existingImage = uploadedImages.find(
           (img) => img.userId === userId && img.date === today
         );
 
         try {
-          const groupRef = doc(db, 'groups', groupId);
+          const groupRef = doc(db, 'groups', groupId); // Reference to the group document
           const updatedImages = existingImage
             ? uploadedImages.map((img) =>
                 img.userId === userId ? { ...img, image: dataUrl } : img
@@ -87,17 +92,17 @@ export default function GroupDetails() {
                 { userId, image: dataUrl, date: today },
               ];
 
-          await updateDoc(groupRef, { uploadedImages: updatedImages });
+          await updateDoc(groupRef, { uploadedImages: updatedImages }); // Update the document with new images
 
-          setUploadedImages(updatedImages);
-          setHasUploadedToday(true);
+          setUploadedImages(updatedImages); // Update state with new images
+          setHasUploadedToday(true); // Set upload status to true
         } catch (error) {
-          console.error('Error updating group data:', error);
-          alert('Failed to update group data. Please try again.');
+          console.error('Error updating group data:', error); // Log any errors
+          alert('Failed to update group data. Please try again.'); // Alert the user on failure
         }
       };
     };
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(file); // Read the file as a data URL
   };
 
   return (
@@ -109,6 +114,7 @@ export default function GroupDetails() {
             <h2 className="text-xl font-semibold">{group.name}</h2>
             <p className="mt-2">Streak: {group.streak || 0} days</p>
 
+            {/* Conditional rendering for image upload input */}
             {auth.currentUser?.uid && !hasUploadedToday && (
               <input
                 type="file"
@@ -118,6 +124,7 @@ export default function GroupDetails() {
               />
             )}
 
+            {/* Message displayed if the user has uploaded today */}
             {hasUploadedToday && (
               <p className="mt-4 text-green-500">Thank you for your daily contribution!</p>
             )}
@@ -132,7 +139,7 @@ export default function GroupDetails() {
                   <div key={user.id} className="flex items-center mb-4">
                     <div className="mr-4">
                       <img
-                        src={uploadedImage.image || '/default-avatar.png'}
+                        src={uploadedImage.image || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIiIGhlaWdodD0iMTIiIHZpZXdCb3g9IjAgMCAxMiAxMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjEyIiBoZWlnaHQ9IjEyIiByeD0iMiIgZmlsbD0iIzAwMCIvPgo8L3N2Zz4='}
                         alt={user.name}
                         className="w-12 h-12 rounded-full"
                       />

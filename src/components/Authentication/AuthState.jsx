@@ -1,4 +1,7 @@
-// AuthState.jsx
+/**
+ * Authentication State Management Component
+ * Handles user authentication state and provides user context
+ */
 import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./firebase";

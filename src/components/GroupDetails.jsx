@@ -54,7 +54,7 @@ export default function GroupDetails() {
   // Function to handle image upload
   const handleImageUpload = async (e) => {
     const file = e.target.files[0]; // Get the selected file
-    if (!file || !file.type.startsWith('image/') || file.size > 5 * 1024 * 1024) {
+    if (!file || !file.type.startsWith('image/') || file.size > 10 * 1024 * 1024) {
       alert('Invalid file. Please upload an image under 5MB.'); // Validate file type and size
       return;
     }
